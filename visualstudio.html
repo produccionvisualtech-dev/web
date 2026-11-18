@@ -1,0 +1,2088 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>VisualStudio | Gráfica Visualtech</title>
+  <meta name="description" content="Diseñá tu exhibidor en 3D: elegí el formato, las medidas y los estantes antes de fabricarlo.">
+  <meta name="theme-color" content="#1D1D1B">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Oswald:wght@400;700&family=Playfair+Display:wght@400;700&family=Roboto+Slab:wght@400;700&family=Lobster&display=swap">
+
+  <!-- ======================================================================
+       CONFIGURACIÓN DE VISUALSTUDIO
+       Todo lo que se puede ajustar sin tocar el código está acá.
+       Medidas en centímetros, espesores en milímetros.
+       Los valores marcados PROVISORIO se reemplazan cuando lleguen las plantillas reales.
+       ====================================================================== -->
+  <script>
+  window.VS_CONFIG = {
+    // Botón "Volver al sitio": vuelve a la sección "Diseñá tu exhibidor" de la home.
+    // "./" es la página principal de la misma carpeta (en el hosting, el index.html del dominio).
+    sitioUrl: "./#exhibidor",
+    // Número de WhatsApp (mismo que el sitio).
+    whatsappNumero: "5493413980175",
+
+    // Material y producción
+    material: "Corrugado plástico",
+    impresion: "Impresión UV",
+    placa: { ancho: 244, alto: 122 },   // cm. Cada pieza desplegada tiene que entrar en la placa.
+    // Para la fase 2 (diseño), tomado de "PLANTILLA REF IMP.pdf":
+    sangrado: 0.3,                      // cm de imagen por fuera del corte (3 mm a los lados, 5 mm arriba y abajo en la referencia)
+    dpiMinimo: 150,                     // resolución con la que vienen las imágenes de la referencia
+
+    // Sello que va siempre en el fondo (arriba, al centro), como en las plantillas de producción.
+    sello: {
+      ancho: 5, margenArriba: 2,   // cm
+      titulo: "Desarrollo y Producción",
+      marca: "Gráfica Visualtech",
+      web: "www.graficavisualtech.com.ar",
+      lugar: "Rosario, Santa Fe · Argentina",
+      qrs: ["https://www.graficavisualtech.com.ar/", "https://www.instagram.com/graficavisualtech"],
+    },
+    // Tipografías que se ofrecen en el paso Diseño (tienen que estar en el link de Google Fonts de arriba).
+    tipografias: ["Montserrat", "Poppins", "Inter", "Oswald", "Bebas Neue", "Playfair Display", "Roboto Slab", "Lobster"],
+    // Colores rápidos para el fondo y los textos.
+    colores: ["#FFFFFF", "#1D1D1B", "#D07F29", "#C1272D", "#0B5394", "#2E7D32", "#F2C230", "#7A4E9C"],
+
+    // Cuánto sobresalen las pestañas por las ranuras (cm), como se ve en los exhibidores armados.
+    salePestanas: { estante: 1.2, frentin: 0.9, cenefa: 1, viga: 0.6, zocalo: 0.6, fondo: 0.6 },
+
+    // Espesores del material (mm). El molde estándar tiene ranuras de 4,6 mm: pensado para 4 mm.
+    espesores: [2.6, 4, 5, 7],
+    espesorInicial: 4,
+
+    /* Formatos. Las medidas iniciales salen de los moldes reales:
+       - De pie: "molde exh sin impresion estandar.pdf"
+       - De mostrador: "MOLDE MARCELA MOREIRA.pdf"
+       El cuerpo (lateral + fondo + lateral) es UNA sola pieza plegada. */
+    formatos: {
+      pie: {
+        nombre: "De pie",
+        texto: "Para piso, 4 o 5 estantes",
+        estantes: [4, 5], estantesInicial: 4,
+        alto:        { min: 80, max: 120, inicial: 110 }, // alto del CUERPO, sin cabezal (máx. 1,20 m)
+        ancho:       { min: 30, max: 60,  inicial: 37 },  // rango PROVISORIO
+        profundidad: { min: 20, max: 40,  inicial: 25 },  // rango PROVISORIO
+        cabezal:     { min: 15, max: 35,  inicial: 29, activo: true, radio: 13 }, // radio de las esquinas de arriba
+        perfil: "recto",       // lateral recto con la esquina de arriba adelante redondeada
+        radioLateral: 8,       // radio de esa esquina
+        primerEstante: 17.7,   // altura del estante de abajo (arriba del zócalo)
+        zocalo: true,          // panel frontal debajo del primer estante
+        refuerzo: true,        // perfil en U debajo de cada estante
+        frentin: 3.7,          // pestaña plegada al frente de cada estante
+        minEntreEstantes: 16,  // aviso si el espacio entre estantes queda más chico. PROVISORIO
+        /* Encastres medidos en "molde exh sin impresion estandar.pdf" (cm). Se ven desde afuera.
+           estante: centro de cada pestaña, como fracción de la profundidad del estante medida desde atrás. */
+        encastres: {
+          estante: [0.19, 0.70], estanteLargo: 4.5,
+          viga: { centro: 0.446, separacion: 4, alto: 3.34 },        // centro como fracción de la profundidad, desde atrás
+          frentin: { desdeFrente: 1.33, sobreEstante: 3.57, alto: 3.34 },
+          fondo: { x: 0.225, largo: 5.3 },                          // ± fracción del ancho, desde el centro
+          zocalo: { desdeFrente: 1.43, alturas: [5.43, 13.43], alto: 3.05 },
+          cenefa: { bajoBorde: 2.5, alto: 3.19 },                   // ranuras sobre los pliegues, arriba
+        },
+      },
+      mostrador: {
+        nombre: "De mostrador",
+        texto: "Para mostrador, 1 a 3 estantes",
+        estantes: [1, 2, 3], estantesInicial: 3,
+        alto:        { min: 30, max: 60, inicial: 45 },   // rango PROVISORIO
+        ancho:       { min: 15, max: 45, inicial: 22 },   // rango PROVISORIO
+        profundidad: { min: 10, max: 30, inicial: 15 },   // profundidad en la base. Rango PROVISORIO
+        cabezal:     { min: 8,  max: 20, inicial: 11, activo: true, radio: 4.5 },
+        perfil: "inclinado",   // frente inclinado: más profundo abajo, escalonado
+        profArriba: 0.48,      // profundidad arriba = 48 % de la de abajo
+        baseRecta: 6.3,        // tramo recto vertical abajo, antes de la inclinación (cm)
+        primerEstante: 1,      // el estante de abajo apoya casi en la base
+        zocalo: false,
+        refuerzo: false,
+        frentin: 3.5,
+        minEntreEstantes: 10,
+        // Encastres medidos en "MOLDE MARCELA MOREIRA.pdf": una sola pestaña por estante en cada lateral.
+        encastres: {
+          estante: [0.45], estanteLargo: 4,
+          frentin: { desdeFrente: 1.1, sobreEstante: 3.7, alto: 3.1 },
+          fondo: { x: 0.25, largo: 4 },
+          cenefa: { bajoBorde: 1.75, alto: 2.11 },
+        },
+      },
+    },
+  };
+  </script>
+
+  <style>
+:root {
+  --orange: #D07F29;
+  --orange-d: #B86D1F;
+  --ink: #1D1D1B;
+  --ink-2: #2A2A28;
+  --gray: #808080;
+  --gray-l: #B3B3B3;
+  --paper: #FCFBFA;
+  --paper-2: #F3F1ED;
+  --line: rgba(29, 29, 27, .12);
+  --f-display: "Bebas Neue", "Arial Narrow", Impact, sans-serif;
+  --f-body: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --radius: 22px;
+  --radius-sm: 14px;
+  --header-h: 64px;
+  --panel-w: 400px;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--f-body); font-size: 15px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
+:focus-visible { outline: 2px solid var(--orange); outline-offset: 3px; border-radius: 4px; }
+::selection { background: var(--orange); color: var(--paper); }
+.dia { display: inline-block; width: 8px; height: 8px; background: var(--orange); transform: rotate(45deg); flex: none; }
+
+/* ---------- Encabezado ---------- */
+.vs-header {
+  height: var(--header-h); display: flex; align-items: center; gap: 20px;
+  padding: 0 20px; border-bottom: 1px solid var(--line); background: var(--paper);
+  position: relative; z-index: 5;
+}
+.vs-back { display: inline-flex; align-items: center; gap: 8px; font-size: .88rem; font-weight: 500; color: var(--gray); white-space: nowrap; }
+.vs-back:hover { color: var(--ink); }
+.vs-back svg { width: 18px; height: 18px; }
+.vs-brand { display: flex; align-items: center; gap: 10px; font-family: var(--f-display); font-size: 1.9rem; line-height: 1; letter-spacing: .01em; padding-top: 3px; }
+.vs-brand small { font-family: var(--f-body); font-size: .72rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--gray); padding-bottom: 3px; }
+.vs-steps { margin-left: auto; display: flex; gap: 6px; list-style: none; padding: 0; margin-top: 0; margin-bottom: 0; }
+.vs-steps button {
+  display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px;
+  font-size: .82rem; font-weight: 600; color: var(--gray); border: 1px solid var(--line); transition: border-color .2s;
+}
+.vs-steps button:not([disabled]):hover { border-color: var(--ink); }
+.vs-steps button[disabled] { color: var(--gray-l); cursor: not-allowed; }
+.vs-steps b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.vs-steps button.is-active { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.vs-steps button.is-active b { color: var(--orange); }
+
+/* ---------- Disposición general ---------- */
+.vs-app { display: grid; grid-template-columns: 1fr var(--panel-w); height: calc(100% - var(--header-h)); height: calc(100dvh - var(--header-h)); }
+.vs-stage { position: relative; min-height: 0; overflow: hidden; user-select: none; -webkit-user-select: none; }
+.vs-viewer { position: absolute; inset: 0; background: radial-gradient(120% 90% at 50% 35%, #fff 0%, var(--paper-2) 70%); overflow: hidden; transition: none; }
+
+/* ---------- Paso 2: editor ocupa el escenario y el 3D queda chico en una esquina ---------- */
+.vs-editor { position: absolute; inset: 0; display: none; background: var(--paper-2); }
+.vs-editor canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.ed-top { position: absolute; top: 16px; left: 16px; display: flex; align-items: baseline; gap: 10px; background: rgba(252,251,250,.92); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; font-size: .85rem; }
+.ed-top span { color: var(--gray); font-size: .8rem; }
+.ed-hint { position: absolute; left: 16px; bottom: 16px; font-size: .78rem; color: var(--gray); pointer-events: none; }
+body[data-step="2"] .vs-editor { display: block; }
+body[data-step="2"] .vs-viewer {
+  inset: auto 16px 16px auto; width: 300px; height: 300px; border-radius: var(--radius-sm);
+  border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(29,29,27,.12); z-index: 3;
+}
+body[data-step="2"] .vs-views, body[data-step="2"] .vs-dims, body[data-step="2"] .vs-hint { display: none; }
+
+/* Botón para agrandar la vista 3D (solo en el paso 2) */
+.vs-expand {
+  position: absolute; top: 10px; right: 10px; z-index: 4; display: none; align-items: center; gap: 8px;
+  height: 36px; min-width: 36px; padding: 0 9px; justify-content: center; border-radius: 999px;
+  background: rgba(252,251,250,.94); border: 1px solid var(--line); font-size: .82rem; font-weight: 600;
+  box-shadow: 0 2px 8px rgba(29,29,27,.1); transition: border-color .2s, background .2s, color .2s;
+}
+.vs-expand:hover { border-color: var(--ink); }
+.vs-expand svg { width: 18px; height: 18px; flex: none; }
+.vs-expand .i-close, .vs-expand span { display: none; }
+body[data-step="2"] .vs-expand { display: inline-flex; }
+/* Vista previa agrandada: ocupa todo el escenario, tapando el editor */
+body[data-step="2"].preview-big .vs-viewer { inset: 0; width: auto; height: auto; border-radius: 0; border: 0; box-shadow: none; }
+body[data-step="2"].preview-big .vs-views { display: flex; }
+body[data-step="2"].preview-big .vs-hint { display: block; }
+body.preview-big .vs-expand { top: 16px; right: 16px; padding: 0 16px; background: var(--ink); color: var(--paper); border-color: var(--ink); }
+body.preview-big .vs-expand .i-open { display: none; }
+body.preview-big .vs-expand .i-close, body.preview-big .vs-expand span { display: inline; }
+
+.seg-wrap button { min-width: 0; font-size: .82rem; min-height: 38px; }
+.tools { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tool {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 76px;
+  border: 1.5px dashed var(--gray-l); border-radius: var(--radius-sm); font-size: .85rem; font-weight: 600; cursor: pointer;
+  transition: border-color .2s, background .2s; text-align: center;
+}
+.tool:hover { border-color: var(--orange); background: rgba(208,127,41,.05); }
+.tool svg { width: 24px; height: 24px; color: var(--orange); }
+label.tool { width: 100%; }
+.actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.mini { min-height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); font-size: .78rem; font-weight: 600; }
+.mini:hover { border-color: var(--ink); }
+.mini.is-on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.mini.danger { color: #b3261e; }
+.mini.danger:hover { border-color: #b3261e; }
+.swatches { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sw { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); box-shadow: inset 0 0 0 2px #fff; }
+.sw.is-on { outline: 2px solid var(--orange); outline-offset: 2px; }
+.sw-custom { position: relative; width: 32px; height: 32px; border-radius: 50%; border: 1px dashed var(--gray); display: grid; place-items: center; font-size: 1.1rem; color: var(--gray); overflow: hidden; cursor: pointer; }
+.sw-custom input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.link { font-size: .82rem; font-weight: 600; color: var(--orange-d); margin-top: 12px; text-decoration: underline; text-underline-offset: 3px; }
+.link:hover { color: var(--ink); }
+.prop { margin-bottom: 12px; }
+.prop > span { display: block; font-size: .78rem; font-weight: 600; color: var(--gray); margin-bottom: 5px; }
+.send { display: grid; gap: 10px; }
+.send .btn { margin: 0; }
+.btn.btn-wa { background: var(--ink); }
+.btn.btn-wa:hover { background: #000; }
+.btn.is-done { background: #2e7d32; }
+.btn.is-busy { opacity: .7; pointer-events: none; }
+.prop input[type="text"], .prop input[type="email"],
+.prop textarea, .prop select, .prop input[type="number"] {
+  width: 100%; font: inherit; font-size: .9rem; padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink);
+}
+.prop textarea { resize: vertical; min-height: 64px; }
+.prop textarea:focus, .prop select:focus, .prop input:focus { outline: none; border-color: var(--orange); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.q-ok { color: #2e7d32; font-size: .84rem; margin: 0; display: flex; gap: 8px; align-items: center; }
+.q-item { font-size: .82rem; margin: 0 0 8px; padding: 8px 10px; border-radius: 10px; background: rgba(208,127,41,.1); color: var(--orange-d); line-height: 1.4; }
+.vs-viewer canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+.vs-viewer canvas:active { cursor: grabbing; }
+.vs-panel { border-left: 1px solid var(--line); overflow-y: auto; padding: 24px 24px 32px; background: var(--paper); }
+
+/* ---------- Controles sobre el 3D ---------- */
+.vs-views { position: absolute; top: 16px; left: 16px; display: flex; gap: 6px; flex-wrap: wrap; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border-radius: 999px;
+  background: rgba(252, 251, 250, .9); border: 1px solid var(--line); font-size: .82rem; font-weight: 600;
+  backdrop-filter: blur(6px); transition: background .2s, color .2s, border-color .2s;
+}
+.chip:hover { border-color: var(--ink); }
+.chip.is-on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.chip svg { width: 16px; height: 16px; }
+.vs-dims {
+  position: absolute; left: 16px; bottom: 16px; display: flex; gap: 18px; align-items: baseline;
+  background: rgba(252, 251, 250, .92); border: 1px solid var(--line); border-radius: var(--radius-sm);
+  padding: 10px 16px; backdrop-filter: blur(6px);
+}
+.vs-dims div { display: flex; flex-direction: column; }
+.vs-dims span { font-size: .68rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--gray); }
+.vs-dims strong { font-family: var(--f-display); font-weight: 400; font-size: 1.7rem; line-height: 1; }
+.vs-dims strong small { font-family: var(--f-body); font-size: .75rem; color: var(--gray); margin-left: 2px; }
+.vs-hint { position: absolute; right: 16px; bottom: 16px; font-size: .78rem; color: var(--gray); pointer-events: none; text-align: right; }
+.vs-loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--gray); font-size: .9rem; }
+.vs-error { max-width: 36ch; text-align: center; padding: 20px; }
+
+/* ---------- Panel ---------- */
+.vs-panel h1 { font-family: var(--f-display); font-weight: 400; font-size: 2.6rem; line-height: .9; margin: 0 0 6px; text-transform: uppercase; }
+.vs-panel h1 em { font-style: normal; color: var(--orange); }
+.vs-panel .lead { margin: 0 0 22px; color: #5c5c59; font-size: .92rem; }
+.group { padding: 18px 0; border-top: 1px solid var(--line); }
+.group-title { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: .74rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--gray); }
+
+.formats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.format {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px; text-align: left;
+  border: 1.5px solid var(--line); border-radius: var(--radius-sm); transition: border-color .2s, background .2s;
+}
+.format:hover { border-color: var(--gray-l); }
+.format.is-on { border-color: var(--orange); background: rgba(208, 127, 41, .06); }
+.format svg { width: 34px; height: 44px; color: var(--ink); }
+.format.is-on svg { color: var(--orange); }
+.format strong { font-size: .95rem; font-weight: 600; }
+.format span { font-size: .78rem; color: var(--gray); line-height: 1.3; }
+
+.seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.seg button {
+  min-width: 52px; min-height: 42px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--line);
+  font-weight: 600; font-size: .9rem; transition: border-color .2s, background .2s, color .2s;
+}
+.seg button:hover { border-color: var(--ink); }
+.seg button.is-on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+.field { margin-bottom: 16px; }
+.field:last-child { margin-bottom: 0; }
+.field-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.field-top label { font-size: .9rem; font-weight: 500; }
+.field-top small { color: var(--gray); font-size: .75rem; margin-left: 6px; }
+.num { display: flex; align-items: center; gap: 4px; border: 1.5px solid var(--line); border-radius: 10px; padding: 0 10px; height: 36px; }
+.num:focus-within { border-color: var(--orange); }
+.num input { width: 52px; border: 0; background: none; font: inherit; font-weight: 600; text-align: right; outline: none; -moz-appearance: textfield; }
+.num input::-webkit-outer-spin-button, .num input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.num span { color: var(--gray); font-size: .8rem; }
+input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: none; margin: 0; }
+input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(to right, var(--orange) var(--p, 50%), var(--line) var(--p, 50%)); }
+input[type="range"]::-moz-range-track { height: 4px; border-radius: 4px; background: var(--line); }
+input[type="range"]::-moz-range-progress { height: 4px; border-radius: 4px; background: var(--orange); }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; margin-top: -9px; border-radius: 50%; background: var(--paper); border: 2px solid var(--orange); box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--paper); border: 2px solid var(--orange); }
+.range-ends { display: flex; justify-content: space-between; font-size: .72rem; color: var(--gray-l); margin-top: -2px; }
+
+.switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; font-size: .9rem; font-weight: 500; }
+.switch input { position: absolute; opacity: 0; pointer-events: none; }
+.switch .track { width: 44px; height: 26px; border-radius: 999px; background: var(--gray-l); position: relative; transition: background .2s; flex: none; cursor: pointer; }
+.switch .track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform .25s var(--ease); box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+.switch input:checked + .track { background: var(--orange); }
+.switch input:checked + .track::after { transform: translateX(18px); }
+.switch input:focus-visible + .track { outline: 2px solid var(--orange); outline-offset: 3px; }
+
+.warn { display: none; gap: 10px; align-items: flex-start; margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: rgba(208, 127, 41, .1); color: var(--orange-d); font-size: .82rem; line-height: 1.4; }
+.warn.is-on { display: flex; }
+.warn .dia { margin-top: 5px; }
+.info { font-size: .8rem; color: var(--gray); margin: 10px 0 0; }
+
+.pieces { width: 100%; border-collapse: collapse; font-size: .84rem; }
+.pieces th { text-align: left; font-size: .7rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--gray); padding: 0 0 8px; }
+.pieces th:not(:first-child), .pieces td:not(:first-child) { text-align: right; }
+.pieces td { padding: 8px 0; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.pieces tr[data-key] { cursor: default; transition: color .15s; }
+.pieces tr[data-key]:hover td { color: var(--orange-d); }
+
+.next { margin-top: 22px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+  min-height: 52px; padding: 0 24px; border-radius: 999px; font-weight: 600; font-size: .95rem;
+  background: var(--orange); color: #fff; transition: background .25s;
+}
+.btn:hover { background: var(--orange-d); }
+.btn[disabled] { background: var(--paper-2); color: var(--gray); cursor: not-allowed; }
+.btn svg { width: 18px; height: 18px; }
+.next p { text-align: center; font-size: .78rem; color: var(--gray); margin: 8px 0 0; }
+
+/* ---------- Celular y tablet ---------- */
+@media (max-width: 900px) {
+  :root { --header-h: 56px; }
+  html, body { height: auto; }
+  .vs-header { padding: 0 14px; gap: 12px; }
+  .vs-back span, .vs-brand small, .vs-steps span { display: none; }
+  .vs-brand { font-size: 1.6rem; }
+  .vs-steps button { padding: 6px 11px; }
+  .vs-app { display: block; height: auto; }
+  /* El 3D (o el editor) queda fijo arriba mientras se ajusta desde el panel */
+  .vs-stage { position: sticky; top: 0; height: 46svh; min-height: 300px; z-index: 2; border-bottom: 1px solid var(--line); }
+  body[data-step="2"] .vs-stage { height: 52svh; }
+  body[data-step="2"] .vs-viewer { width: 112px; height: 112px; inset: 10px 10px auto auto; }
+  .ed-top { top: 10px; left: 10px; padding: 6px 12px; font-size: .78rem; }
+  .ed-hint { display: none; }
+  /* en el celular, el botón de achicar queda solo con el ícono para no tapar las vistas */
+  body.preview-big .vs-expand { top: 10px; right: 10px; padding: 0 9px; }
+  body.preview-big .vs-expand span { display: none; }
+  .vs-panel { border-left: 0; padding: 20px 16px 40px; overflow: visible; }
+  .vs-views { top: 10px; left: 10px; }
+  .chip { min-height: 32px; padding: 0 11px; font-size: .76rem; }
+  .vs-dims { left: 10px; bottom: 10px; padding: 8px 12px; gap: 12px; }
+  .vs-dims strong { font-size: 1.35rem; }
+  .vs-hint { display: none; }
+}
+@media (min-width: 1600px) { :root { --panel-w: 440px; } }
+  </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+<header class="vs-header">
+  <a class="vs-back" id="vs-back" href="#">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Volver al sitio</span>
+  </a>
+  <div class="vs-brand"><span class="dia"></span>VisualStudio <small>Gráfica Visualtech</small></div>
+  <ol class="vs-steps" aria-label="Pasos">
+    <li><button data-goto="1"><b>01</b><span>Estructura</span></button></li>
+    <li><button data-goto="2"><b>02</b><span>Diseño</span></button></li>
+    <li><button data-goto="3"><b>03</b><span>Enviar</span></button></li>
+  </ol>
+</header>
+
+<main class="vs-app">
+ <div class="vs-stage">
+  <section class="vs-editor" id="editor" aria-label="Editor de diseño">
+    <canvas id="ed-canvas"></canvas>
+    <div class="ed-top"><strong id="ed-title"></strong><span id="ed-size"></span></div>
+    <div class="ed-hint">Arrastrá para mover · Esquinas para escalar · Círculo para girar</div>
+  </section>
+  <section class="vs-viewer" id="viewer" aria-label="Vista 3D del exhibidor">
+    <div class="vs-loading" id="loading">Cargando vista 3D…</div>
+    <div class="vs-views" role="group" aria-label="Vistas">
+      <button class="chip is-on" data-view="persp">Perspectiva</button>
+      <button class="chip" data-view="front">Frente</button>
+      <button class="chip" data-view="side">Lateral</button>
+    </div>
+    <div class="vs-dims" aria-live="polite">
+      <div><span>Ancho</span><strong id="d-ancho">40<small>cm</small></strong></div>
+      <div><span>Alto total</span><strong id="d-alto">120<small>cm</small></strong></div>
+      <div><span>Prof.</span><strong id="d-prof">30<small>cm</small></strong></div>
+    </div>
+    <div class="vs-hint">Arrastrá para girar · Rueda o pellizco para acercar</div>
+    <button class="vs-expand" id="vs-expand" aria-label="Agrandar vista previa" title="Agrandar vista previa">
+      <svg class="i-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6 M20 4l-7 7 M10 20H4v-6 M4 20l7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="i-close" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4l-6 6 M14 5v5h5 M4 20l6-6 M10 19v-5H5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Volver al editor</span>
+    </button>
+  </section>
+ </div>
+
+  <aside class="vs-panel" id="panel">
+   <div class="step" data-step="1">
+    <h1>Armá tu <em>exhibidor</em></h1>
+    <p class="lead">Elegí el formato y ajustá las medidas. Lo vas viendo en 3D mientras lo armás.</p>
+
+    <div class="group">
+      <h2 class="group-title"><span class="dia"></span>Formato</h2>
+      <div class="formats" id="formats"></div>
+    </div>
+
+    <div class="group">
+      <h2 class="group-title"><span class="dia"></span>Estantes</h2>
+      <div class="seg" id="estantes" role="group" aria-label="Cantidad de estantes"></div>
+      <label class="switch" for="ref-on" id="ref-row" style="margin:16px 0 0">Viga de refuerzo bajo cada estante
+        <input type="checkbox" id="ref-on"><span class="track" aria-hidden="true"></span>
+      </label>
+      <div class="warn" id="warn-estantes"><span class="dia"></span><span></span></div>
+    </div>
+
+    <div class="group">
+      <h2 class="group-title"><span class="dia"></span>Medidas</h2>
+      <div id="medidas"></div>
+    </div>
+
+    <div class="group">
+      <h2 class="group-title"><span class="dia"></span>Cenefa</h2>
+      <label class="switch" for="cab-on">Con cenefa para tu marca
+        <input type="checkbox" id="cab-on"><span class="track" aria-hidden="true"></span>
+      </label>
+      <div id="cabezal"></div>
+      <p class="info">La cenefa va encastrada arriba del fondo y suma a la altura total.</p>
+    </div>
+
+    <div class="group">
+      <h2 class="group-title"><span class="dia"></span>Espesor</h2>
+      <div class="seg" id="espesores" role="group" aria-label="Espesor del material"></div>
+      <p class="info" id="material-info"></p>
+    </div>
+
+    <div class="group">
+      <h2 class="group-title"><span class="dia"></span>Piezas</h2>
+      <table class="pieces">
+        <thead><tr><th>Pieza</th><th>Cant.</th><th>Medida (cm)</th></tr></thead>
+        <tbody id="pieces"></tbody>
+      </table>
+    </div>
+
+    <div class="next">
+      <button class="btn" data-goto="2">Siguiente: diseño
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+   </div>
+
+   <!-- ===================== PASO 2: DISEÑO ===================== -->
+   <div class="step" data-step="2" hidden>
+    <h1>Diseñá tu <em>exhibidor</em></h1>
+    <p class="lead">Elegí una pieza y cargá tus logos, textos y colores. Lo ves en 3D al instante.</p>
+
+    <div class="group">
+      <h2 class="group-title"><span class="dia"></span>Pieza</h2>
+      <div class="seg seg-wrap" id="ed-pieces" role="group" aria-label="Pieza a diseñar"></div>
+      <label class="switch" for="ed-link" style="margin:14px 0 0">Mismo diseño en los dos laterales
+        <input type="checkbox" id="ed-link"><span class="track" aria-hidden="true"></span>
+      </label>
+      <p class="info" id="ed-piece-note"></p>
+    </div>
+
+    <div class="group">
+      <h2 class="group-title"><span class="dia"></span>Agregar</h2>
+      <div class="tools">
+        <label class="tool">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z M4 15l4.5-4.5 4 4 3-3L20 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="15.5" cy="8.5" r="1.5" fill="currentColor"/></svg>
+          Subir imagen<input type="file" id="ed-file" accept="image/png,image/jpeg,image/svg+xml,image/webp" multiple hidden>
+        </label>
+        <button class="tool" id="ed-add-text">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6V4h14v2 M12 4v16 M9 20h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          Agregar texto
+        </button>
+      </div>
+      <p class="info">Para logos usá PNG con fondo transparente o SVG.</p>
+    </div>
+
+    <div class="group" id="ed-props-group" hidden>
+      <h2 class="group-title"><span class="dia"></span><span id="ed-props-title">Elemento</span></h2>
+      <div id="ed-props"></div>
+      <div class="actions">
+        <button class="mini" data-act="front" title="Traer adelante">Adelante</button>
+        <button class="mini" data-act="back" title="Mandar atrás">Atrás</button>
+        <button class="mini" data-act="center" title="Centrar en la pieza">Centrar</button>
+        <button class="mini" data-act="dup" title="Duplicar">Duplicar</button>
+        <button class="mini danger" data-act="del" title="Eliminar">Eliminar</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2 class="group-title"><span class="dia"></span>Color de fondo</h2>
+      <div class="swatches" id="ed-bg"></div>
+      <button class="link" id="ed-bg-all">Usar este color en todas las piezas</button>
+    </div>
+
+    <div class="group">
+      <h2 class="group-title"><span class="dia"></span>Tipografías</h2>
+      <p class="info" style="margin-top:0">Hay tipografías estándar para elegir. Si tu marca usa otra, subila (TTF, OTF o WOFF).</p>
+      <label class="tool" style="margin-top:10px">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4 M7 9l5-5 5 5 M5 20h14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Subir tipografía<input type="file" id="ed-font" accept=".ttf,.otf,.woff,.woff2" hidden>
+      </label>
+      <p class="info" id="ed-fonts-list"></p>
+    </div>
+
+    <div class="group">
+      <h2 class="group-title"><span class="dia"></span>Calidad de impresión</h2>
+      <div id="ed-quality"></div>
+    </div>
+
+    <div class="next">
+      <button class="btn" data-goto="3">Siguiente: enviar
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="link" data-goto="1" style="display:block;margin:12px auto 0">Volver a la estructura</button>
+    </div>
+   </div>
+
+   <!-- ===================== PASO 3: ENVIAR ===================== -->
+   <div class="step" data-step="3" hidden>
+    <h1>Enviá tu <em>diseño</em></h1>
+    <p class="lead">Revisá el resumen, descargá el PDF y mandánoslo por WhatsApp. Te respondemos con la cotización.</p>
+
+    <div class="group">
+      <h2 class="group-title"><span class="dia"></span>Resumen</h2>
+      <table class="pieces"><tbody id="summary"></tbody></table>
+      <div id="sum-quality" style="margin-top:12px"></div>
+    </div>
+
+    <div class="group">
+      <h2 class="group-title"><span class="dia"></span>Tus datos</h2>
+      <label class="prop"><span>Nombre</span><input type="text" id="c-nombre" autocomplete="name" maxlength="80"></label>
+      <label class="prop"><span>Mail</span><input type="email" id="c-mail" autocomplete="email" maxlength="120"></label>
+      <div class="warn" id="c-error"><span class="dia"></span><span></span></div>
+    </div>
+
+    <div class="next send">
+      <button class="btn" id="btn-pdf">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11 M7 10l5 5 5-5 M5 20h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>1. Descargar PDF</span>
+      </button>
+      <button class="btn btn-wa" id="btn-wa">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2Zm0 18.15c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 4.54 0 8.24 3.7 8.24 8.24 0 4.55-3.7 8.24-8.24 8.24Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.15.16-.29.18-.54.06-.25-.13-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.01-.38.11-.5.11-.11.25-.29.37-.43.13-.15.17-.25.25-.42.08-.16.04-.31-.02-.43-.06-.13-.56-1.35-.76-1.84-.2-.49-.41-.42-.56-.43h-.48a.92.92 0 0 0-.66.31c-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.1-.22-.16-.47-.28Z"/></svg>
+        <span>2. Enviar por WhatsApp</span>
+      </button>
+      <p id="send-note">Se abre WhatsApp con el mensaje listo. <b>Adjuntá el PDF</b> que descargaste antes de enviarlo.</p>
+      <button class="link" data-goto="2" style="display:block;margin:12px auto 0">Volver al diseño</button>
+    </div>
+   </div>
+  </aside>
+</main>
+
+<script type="module">
+/* ==========================================================================
+   VISUALSTUDIO — Paso 1: estructura del exhibidor en 3D
+   ========================================================================== */
+const CFG = window.VS_CONFIG;
+const $ = (s) => document.querySelector(s);
+document.getElementById("vs-back").href = CFG.sitioUrl;
+
+/* ---------- Estado (se guarda en el navegador para no perder lo armado) ---------- */
+const STORAGE = "visualstudio-estado-v2";
+const defaults = (fmt) => {
+  const f = CFG.formatos[fmt];
+  return {
+    formato: fmt,
+    estantes: f.estantesInicial,
+    alto: f.alto.inicial, ancho: f.ancho.inicial, profundidad: f.profundidad.inicial,
+    cabezal: f.cabezal.activo, cabezalAlto: f.cabezal.inicial,
+    espesor: CFG.espesorInicial,
+  };
+};
+let state;
+try { state = JSON.parse(localStorage.getItem(STORAGE)); } catch { state = null; }
+if (!state || !CFG.formatos[state.formato]) state = defaults("pie");
+const save = () => { try { localStorage.setItem(STORAGE, JSON.stringify(state)); } catch {} };
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const fmtCm = (v) => (Math.round(v * 10) / 10).toLocaleString("es-AR");
+
+/* ---------- Íconos de formato ---------- */
+const ICONS = {
+  pie: `<svg viewBox="0 0 34 44" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="7" y="1" width="20" height="8" rx="1"/><path d="M5 9h24v34H5z M5 17h24 M5 25h24 M5 33h24"/></svg>`,
+  mostrador: `<svg viewBox="0 0 34 44" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="9" y="14" width="16" height="6" rx="1"/><path d="M6 20h22v20H6z M6 30h22 M1 43h32"/></svg>`,
+};
+
+/* ---------- Panel ---------- */
+function slider(id, label, range, value, note = "") {
+  return `<div class="field">
+    <div class="field-top"><label for="${id}">${label}${note ? `<small>${note}</small>` : ""}</label>
+      <div class="num"><input type="number" id="${id}-n" inputmode="numeric" min="${range.min}" max="${range.max}" value="${value}" aria-label="${label} en centímetros"><span>cm</span></div></div>
+    <input type="range" id="${id}" min="${range.min}" max="${range.max}" step="1" value="${value}">
+    <div class="range-ends"><span>${range.min}</span><span>${range.max}</span></div>
+  </div>`;
+}
+const paintRange = (r) => r.style.setProperty("--p", ((r.value - r.min) / (r.max - r.min)) * 100 + "%");
+
+function bindSlider(id, key, getRange) {
+  const r = document.getElementById(id), n = document.getElementById(id + "-n");
+  paintRange(r);
+  r.addEventListener("input", () => { state[key] = +r.value; n.value = r.value; paintRange(r); update(); });
+  n.addEventListener("input", () => {
+    const { min, max } = getRange();
+    if (n.value !== "" && +n.value >= min && +n.value <= max) { state[key] = +n.value; r.value = n.value; paintRange(r); update(); }
+  });
+  n.addEventListener("change", () => {
+    const { min, max } = getRange();
+    const v = clamp(Math.round(+n.value || state[key]), min, max);
+    state[key] = v; n.value = v; r.value = v; paintRange(r); update();
+  });
+}
+
+function renderPanel() {
+  const f = CFG.formatos[state.formato];
+
+  $("#formats").innerHTML = Object.entries(CFG.formatos).map(([k, v]) =>
+    `<button class="format ${k === state.formato ? "is-on" : ""}" data-fmt="${k}" aria-pressed="${k === state.formato}">
+      ${ICONS[k] || ""}<strong>${v.nombre}</strong><span>${v.texto}</span></button>`).join("");
+  $("#formats").querySelectorAll("[data-fmt]").forEach((b) => b.addEventListener("click", () => {
+    if (b.dataset.fmt === state.formato) return;
+    state = { ...defaults(b.dataset.fmt), espesor: state.espesor };
+    renderPanel(); update(); frame("persp", true);
+  }));
+
+  $("#estantes").innerHTML = f.estantes.map((n) =>
+    `<button data-n="${n}" class="${n === state.estantes ? "is-on" : ""}" aria-pressed="${n === state.estantes}">${n}</button>`).join("");
+  $("#estantes").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+    state.estantes = +b.dataset.n;
+    $("#estantes").querySelectorAll("button").forEach((x) => { x.classList.toggle("is-on", x === b); x.setAttribute("aria-pressed", x === b); });
+    update();
+  }));
+
+  $("#medidas").innerHTML =
+    slider("alto", "Alto del cuerpo", f.alto, state.alto, "sin cenefa") +
+    slider("ancho", "Ancho", f.ancho, state.ancho) +
+    slider("prof", "Profundidad", f.profundidad, state.profundidad, f.perfil === "inclinado" ? "en la base" : "");
+  bindSlider("alto", "alto", () => f.alto);
+  bindSlider("ancho", "ancho", () => f.ancho);
+  bindSlider("prof", "profundidad", () => f.profundidad);
+
+  $("#ref-row").hidden = !f.refuerzo;
+  $("#ref-on").checked = f.refuerzo && state.refuerzo !== false;
+
+  $("#cab-on").checked = state.cabezal;
+  $("#cabezal").innerHTML = slider("cab", "Alto de la cenefa", f.cabezal, state.cabezalAlto);
+  bindSlider("cab", "cabezalAlto", () => f.cabezal);
+  $("#cabezal").style.display = state.cabezal ? "" : "none";
+
+  $("#espesores").innerHTML = CFG.espesores.map((e) =>
+    `<button data-e="${e}" class="${e === state.espesor ? "is-on" : ""}" aria-pressed="${e === state.espesor}">${String(e).replace(".", ",")} mm</button>`).join("");
+  $("#espesores").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+    state.espesor = +b.dataset.e;
+    $("#espesores").querySelectorAll("button").forEach((x) => { x.classList.toggle("is-on", x === b); x.setAttribute("aria-pressed", x === b); });
+    update();
+  }));
+}
+$("#ref-on").addEventListener("change", (e) => { state.refuerzo = e.target.checked; update(); });
+$("#cab-on").addEventListener("change", (e) => {
+  state.cabezal = e.target.checked;
+  $("#cabezal").style.display = state.cabezal ? "" : "none";
+  update();
+});
+
+/* ---------- Medidas de cada pieza (en cm) ----------
+   Ejes: x = ancho (centrado), y = alto desde el piso, z = profundidad (frente en +z). */
+/* Arco de cuarto de círculo como lista de puntos (para esquinas redondeadas). */
+function arc(cx, cy, r, a0, a1, seg = 12) {
+  const out = [];
+  for (let i = 0; i <= seg; i++) {
+    const a = a0 + (a1 - a0) * (i / seg);
+    out.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+  }
+  return out;
+}
+
+function computePieces() {
+  const f = CFG.formatos[state.formato];
+  const t = state.espesor / 10;                 // mm → cm
+  const W = state.ancho, D = state.profundidad;
+  const body = state.alto;                      // alto del cuerpo (sin cabezal)
+  const cab = state.cabezal ? state.cabezalAlto : 0;
+  const n = state.estantes;
+  const inner = W - 2 * t;                      // ancho interior entre laterales
+  const y0 = f.primerEstante;
+  // Igual que en los moldes: estantes parejos y, arriba del último, medio espacio libre.
+  const gap = n > 1 ? (body - y0) / (n - 0.5) : body - y0;
+  const fr = Math.min(f.frentin, gap * 0.4);
+
+  // Profundidad del lateral a una altura dada (frente recto o inclinado).
+  const dTop = f.perfil === "inclinado" ? D * f.profArriba : D;
+  const base = f.perfil === "inclinado" ? Math.min(f.baseRecta, body * 0.3) : body;
+  const depthAt = (y) => y <= base ? D : D - (D - dTop) * Math.min(1, (y - base) / (body - base));
+
+  // Silueta del lateral: u = profundidad desde el fondo, v = altura.
+  let lat;
+  if (f.perfil === "inclinado") {
+    lat = [[0, 0], [D, 0], [D, base], [dTop, body], [0, body]];
+  } else {
+    const r = Math.min(f.radioLateral, D / 2, body / 4);
+    lat = [[0, 0], [D, 0], ...arc(D - r, body - r, r, 0, Math.PI / 2), [0, body]];
+  }
+
+  const parts = [];   // piezas 3D
+  const rows = [];    // tabla de piezas para fabricar
+  // Calcos: caras impresas, apenas por fuera de la pieza (E cm). pts en cm, en el plano de la cara.
+  const decals = [], E = 0.05;
+  const rectPts = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
+  // hl = fila de la tabla de piezas a la que pertenece la cara (para resaltarla en naranja)
+  decals.push({ key: "latIzq", hl: "cuerpo", pts: lat, rotY: -Math.PI / 2, pos: [-W / 2 - E, 0, -D / 2] });
+  decals.push({ key: "latDer", hl: "cuerpo", pts: lat.map(([u, v]) => [D - u, v]), rotY: Math.PI / 2, pos: [W / 2 + E, 0, D / 2] });
+  // la cara de atrás no lleva diseño del cliente (solo el sello): no se resalta
+  decals.push({ key: "fondo", hl: null, pts: rectPts(-inner / 2, 0, inner, body), rotY: Math.PI, pos: [0, 0, -D / 2 - E] });
+  const row = (key, nombre, a, b) => {
+    const same = rows.find((r) => r.key === key);
+    if (same) same.cant++; else rows.push({ key, nombre, cant: 1, a, b });
+  };
+  /* fl = [dirección de los alvéolos, normal de la placa] en ejes de la pieza.
+     El corrugado plástico se pliega a lo largo de los alvéolos: en el cuerpo van verticales
+     (paralelos a los pliegues) y en estantes, zócalo y viga van a lo ancho. */
+  const X = [1, 0, 0], Y = [0, 1, 0], Z = [0, 0, 1];
+  const box = (key, size, pos, fl = null) => parts.push({ key, type: "box", size, pos, fl });
+  const R = 1.6 * t;                            // radio exterior de los pliegues
+  const SALE = CFG.salePestanas;                // cuánto sobresale cada pestaña por su ranura (cm)
+  // color: pieza impresa a la que pertenece la pestaña (toma su color de fondo); null = corrugado blanco
+  const tab = (key, size, pos, color = null) => parts.push({ key, type: "tab", size, pos, color });
+  const slot = (size, pos) => parts.push({ key: "ranura", type: "slot", size, pos });
+  // Pestaña que atraviesa los dos laterales y sobresale afuera, con su ranura alrededor
+  const tabLat = (key, y, z, h, l, e, color = null) => {
+    for (const s of [-1, 1]) {
+      tab(key, [t + e, h, l], [s * (W / 2 - t + (t + e) / 2), y, z], color);
+      slot([0.02, h + 0.1, l + 0.1], [s * (W / 2 + E + 0.03), y, z]);
+    }
+  };
+  // Pestaña que atraviesa el fondo (se ve atrás)
+  const tabFondo = (key, x, y, w, h, e) => {
+    tab(key, [w, h, t + e], [x, y, -D / 2 + t - (t + e) / 2]);
+    slot([w + 0.1, h + 0.1, 0.02], [x, y, -D / 2 - E - 0.03]);
+  };
+
+  // Cuerpo: lateral + fondo + lateral, una sola placa con dos pliegues atrás.
+  const latBody = lat.map(([u, v]) => [Math.max(u, R), v]);   // el lateral empieza donde termina el pliegue
+  parts.push({ key: "cuerpo", type: "lateral", pts: latBody, x: -W / 2 + t, fl: [Y, Z] });
+  parts.push({ key: "cuerpo", type: "lateral", pts: latBody, x: W / 2, fl: [Y, Z] });
+  box("cuerpo", [W - 2 * R, body, t], [0, body / 2, -D / 2 + t / 2], [Y, Z]);
+  // pliegues verticales de atrás (plano z-x, extruidos hacia arriba)
+  parts.push({ key: "cuerpo", type: "arcY", c: [-D / 2 + R, -W / 2 + R], R, t, a0: Math.PI, a1: 1.5 * Math.PI, len: body });
+  parts.push({ key: "cuerpo", type: "arcY", c: [-D / 2 + R, W / 2 - R], R, t, a0: 0.5 * Math.PI, a1: Math.PI, len: body });
+  row("cuerpo", "Cuerpo plegado (laterales + fondo)", 2 * D + W, body);
+
+  if (f.zocalo) {
+    box("zocalo", [inner, y0, t], [0, y0 / 2, D / 2 - t / 2], [X, Z]);
+    decals.push({ key: "zocalo", hl: "zocalo", pts: rectPts(-inner / 2, 0, inner, y0), rotY: 0, pos: [0, 0, D / 2 + E] });
+    const ez = f.encastres?.zocalo;
+    if (ez) for (const h of ez.alturas) if (h < y0) tabLat("zocalo", h, D / 2 - ez.desdeFrente, ez.alto, 0.46, SALE.zocalo, "zocalo");
+    row("zocalo", "Zócalo", inner, y0);
+  }
+
+  const conRefuerzo = f.refuerzo && state.refuerzo !== false;
+  for (let i = 0; i < n; i++) {
+    const y = y0 + i * gap;
+    const front = depthAt(y + t + fr);          // con frente inclinado, el frentín no sobresale
+    const dep = front - t;                      // del fondo al frente
+    const key = "est-" + Math.round(dep);       // estantes iguales comparten fila
+    const zb = -D / 2 + t, zf = -D / 2 + front; // atrás y frente del estante
+    // Estante y frentín son una placa plegada adelante, abajo.
+    box(key, [inner, t, zf - R - zb], [0, y + t / 2, (zb + zf - R) / 2], [X, Y]);
+    const hf = t + fr - R;
+    box(key, [inner, hf, t], [0, y + R + hf / 2, zf - t / 2], [X, Z]);
+    parts.push({ key, type: "arcX", c: [y + R, zf - R], R, t, a0: 0.5 * Math.PI, a1: Math.PI, len: inner });
+    decals.push({ key: "frentin", hl: key, pts: rectPts(-inner / 2, 0, inner, fr), rotY: 0, pos: [0, y + t, zf + E] });
+    // Encastres en las posiciones del molde (ver "encastres" en la configuración).
+    const ec = f.encastres, yc = y + t / 2, sd = zf - zb;
+    for (const k of ec.estante) tabLat(key, yc, zb + sd * k, t, Math.min(ec.estanteLargo, sd * 0.4), SALE.estante);
+    if (ec.frentin) {
+      // la pestaña del frente del estante es parte de la pieza impresa: lleva su color
+      const hy = yc + ec.frentin.sobreEstante;
+      tabLat(key, hy, -D / 2 + depthAt(hy) - ec.frentin.desdeFrente, ec.frentin.alto, 0.46, SALE.frentin, "frentin");
+    }
+    for (const s of [-1, 1]) tabFondo(key, s * inner * ec.fondo.x, yc, Math.min(ec.fondo.largo, inner * 0.2), t, SALE.fondo);
+    row(key, "Estante con frentín", inner, dep + fr);
+    if (conRefuerzo) {
+      // Viga en U debajo del estante; sus pestañas se ven en las ranuras verticales del molde
+      const rh = 2.8, ev = ec.viga, rw = ev.separacion, zc = -D / 2 + D * ev.centro;
+      parts.push({ key: "refuerzo", type: "u", y, zc, rw, rh, t, len: inner });
+      for (const s of [-1, 1]) tabLat("refuerzo", yc, zc + (s * rw) / 2, ev.alto, 0.46, SALE.viga);
+      row("refuerzo", "Refuerzo en U", inner, rh * 2 + rw);
+    }
+  }
+
+  const cabW = W - 2 * t;
+  let cabPts = null;
+  if (cab > 0) {
+    // pestañas de la cenefa: entran por las ranuras sobre los pliegues de atrás y asoman por los costados
+    const en = f.encastres.cenefa;
+    if (en) tabLat("cabezal", body - en.bajoBorde, -D / 2 + R + 0.3, en.alto, 0.46, SALE.cenefa, "cabezal");
+    const r = Math.min(f.cabezal.radio, cab, cabW / 2);
+    cabPts = [[-cabW / 2, 0], [cabW / 2, 0], ...arc(cabW / 2 - r, cab - r, r, 0, Math.PI / 2), ...arc(-cabW / 2 + r, cab - r, r, Math.PI / 2, Math.PI)];
+    parts.push({ key: "cabezal", type: "frente", pts: cabPts, pos: [0, body, -D / 2], fl: [Y, Z] });
+    decals.push({ key: "cabezal", hl: "cabezal", pts: cabPts, rotY: 0, pos: [0, body, -D / 2 + t + E] });
+    rows.unshift({ key: "cabezal", nombre: "Cenefa", cant: 1, a: cabW, b: cab });
+  }
+
+  return { parts, rows, decals, lat, cabPts, cabW, cab, inner, fr, W, D, body, total: body + cab, gap, n, t, f };
+}
+
+/* ---------- Tabla de piezas + avisos ---------- */
+function renderPieces(model) {
+  const { rows, gap, n, f, t } = model;
+  $("#pieces").innerHTML = rows.map((r) =>
+    `<tr data-key="${r.key}"><td>${r.nombre}</td><td>${r.cant}</td><td>${fmtCm(r.a)} × ${fmtCm(r.b)}</td></tr>`).join("") +
+    `<tr><td colspan="3" class="info" style="text-align:left">Espesor ${String(state.espesor).replace(".", ",")} mm. Medidas orientativas (piezas desplegadas): las finales salen del molde de fabricación.</td></tr>`;
+  $("#pieces").querySelectorAll("tr[data-key]").forEach((tr) => {
+    tr.addEventListener("mouseenter", () => highlight(tr.dataset.key));
+    tr.addEventListener("mouseleave", () => highlight(null));
+  });
+
+  const w = $("#warn-estantes");
+  const libre = gap - t - (f.refuerzo && state.refuerzo !== false ? 2.8 : 0);
+  // El cuerpo desplegado tiene que entrar en una placa (en cualquiera de los dos sentidos).
+  const pl = CFG.placa, cu = rows.find((r) => r.key === "cuerpo");
+  const entra = (a, b) => (a <= pl.ancho && b <= pl.alto) || (a <= pl.alto && b <= pl.ancho);
+  const avisos = [];
+  if (n > 1 && libre < f.minEntreEstantes) avisos.push(`Entre estantes quedan ${fmtCm(libre)} cm. Para productos altos conviene menos estantes o un cuerpo más alto.`);
+  if (cu && !entra(cu.a, cu.b)) avisos.push(`El cuerpo desplegado (${fmtCm(cu.a)} × ${fmtCm(cu.b)} cm) no entra en una placa de ${pl.alto} × ${pl.ancho} cm.`);
+  w.classList.toggle("is-on", avisos.length > 0);
+  w.lastElementChild.textContent = avisos.join(" ");
+  const m = (v) => (v / 100).toLocaleString("es-AR");
+  $("#material-info").textContent = `${CFG.material} · ${CFG.impresion} · placa de ${m(pl.alto)} × ${m(pl.ancho)} m`;
+  $("#d-ancho").firstChild.nodeValue = state.ancho;
+  $("#d-alto").firstChild.nodeValue = fmtCm(model.total);
+  $("#d-prof").firstChild.nodeValue = state.profundidad;
+}
+
+/* ==========================================================================
+   VISTA 3D (Three.js)
+   ========================================================================== */
+let THREE, scene, camera, renderer, controls, group, matBase, matHi, edgeMat, matTab, matSlot;
+const meshes = [];
+
+async function init3D() {
+  try {
+    THREE = await import("three");
+    const { OrbitControls } = await import("three/addons/controls/OrbitControls.js");
+    const { RoomEnvironment } = await import("three/addons/environments/RoomEnvironment.js");
+    const viewer = $("#viewer");
+
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    viewer.prepend(renderer.domElement);
+    $("#loading").remove();
+
+    scene = new THREE.Scene();
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+    camera = new THREE.PerspectiveCamera(35, 1, 0.01, 50);
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.maxPolarAngle = Math.PI / 2 - 0.02;   // no pasar por debajo del piso
+    controls.enablePan = false;
+    controls.addEventListener("start", () => setViewChip(null));
+
+    const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+    sun.position.set(1.5, 3, 2.2);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    Object.assign(sun.shadow.camera, { left: -1.5, right: 1.5, top: 1.5, bottom: -1.5, near: 0.1, far: 8 });
+    sun.shadow.radius = 4;
+    scene.add(sun, new THREE.HemisphereLight(0xffffff, 0xd9d4cc, 0.5));
+
+    const floor = new THREE.Mesh(new THREE.CircleGeometry(3, 64), new THREE.ShadowMaterial({ opacity: 0.12 }));
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    matBase = new THREE.MeshStandardMaterial({ color: 0xf6f4f0, roughness: 0.75, metalness: 0 });
+    matHi = new THREE.MeshStandardMaterial({ color: 0xd07f29, roughness: 0.6, metalness: 0 });
+    matHiDecal = new THREE.MeshStandardMaterial({ color: 0xd07f29, roughness: 0.6, metalness: 0,
+      polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+    edgeMat = new THREE.LineBasicMaterial({ color: 0x1d1d1b, transparent: true, opacity: 0.25 });
+    corrMats = makeCorrugadoMaterials();
+    matTab = new THREE.MeshStandardMaterial({ color: 0xf1eee8, roughness: 0.75, metalness: 0 });
+    matSlot = new THREE.MeshBasicMaterial({ color: 0x4a463f });
+
+    group = new THREE.Group();
+    scene.add(group);
+
+    new ResizeObserver(resize).observe(viewer);
+    resize();
+    build();
+    frame("persp", true);
+    renderer.setAnimationLoop(tick);
+  } catch (err) {
+    console.error(err);
+    const l = $("#loading");
+    if (l) l.innerHTML = `<p class="vs-error">No se pudo cargar la vista 3D. Revisá la conexión a internet y recargá la página.</p>`;
+  }
+}
+
+function resize() {
+  const v = $("#viewer");
+  const w = v.clientWidth, h = v.clientHeight;
+  if (!w || !h) return;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+
+const decalMeshes = [];
+function build() {
+  if (!group) return;
+  for (const m of [...meshes, ...decalMeshes]) { m.geometry.dispose(); m.children.forEach((c) => c.geometry.dispose()); group.remove(m); }
+  meshes.length = 0; decalMeshes.length = 0;
+  const { parts, decals, D, t } = computePieces();
+  const cm = 0.01; // 1 unidad 3D = 1 metro
+  const shapeOf = (pts) => new THREE.Shape(pts.map(([a, b]) => new THREE.Vector2(a * cm, b * cm)));
+
+  // Calcos con el diseño de cada cara impresa (paso 2)
+  for (const d of decals) {
+    const tex = textureFor(d.key);
+    if (!tex) continue;
+    const geo = new THREE.ShapeGeometry(shapeOf(d.pts), 12);
+    // UV de 0 a 1 según el rectángulo que ocupa la silueta (igual que el lienzo del editor)
+    const xs = d.pts.map((p) => p[0] * cm), ys = d.pts.map((p) => p[1] * cm);
+    const x0 = Math.min(...xs), y0 = Math.min(...ys), w = Math.max(...xs) - x0, h = Math.max(...ys) - y0;
+    const pos = geo.attributes.position, uv = geo.attributes.uv;
+    for (let i = 0; i < pos.count; i++) uv.setXY(i, (pos.getX(i) - x0) / w, (pos.getY(i) - y0) / h);
+    uv.needsUpdate = true;
+    const mesh = new THREE.Mesh(geo, decalMaterial(d.key, tex));
+    mesh.userData = { key: d.key, hl: d.hl };
+    mesh.rotation.y = d.rotY;
+    mesh.position.set(d.pos[0] * cm, d.pos[1] * cm, d.pos[2] * cm);
+    mesh.receiveShadow = true;
+    group.add(mesh); decalMeshes.push(mesh);
+  }
+
+  const V = (a) => (a ? new THREE.Vector3(...a) : null);
+  const tM = t * cm;
+  // Matrices que llevan una forma 2D (p, q) extruida en Z a su lugar:
+  //  arcY: p = z, q = x, Z = altura (pliegue vertical)   ·   arcX / u: p = y, q = z, Z = ancho
+  const toY = new THREE.Matrix4().set(0, 1, 0, 0,  0, 0, 1, 0,  1, 0, 0, 0,  0, 0, 0, 1);
+  const toX = new THREE.Matrix4().set(0, 0, 1, 0,  1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 0, 1);
+
+  for (const p of parts) {
+    let geo, edges = true, mat = null;
+    const mesh = new THREE.Mesh();
+    if (p.type === "box" || p.type === "tab" || p.type === "slot") {
+      const [sx, sy, sz] = p.size.map((v) => Math.max(v * cm, 0.0002));
+      geo = new THREE.BoxGeometry(sx, sy, sz);
+      mesh.position.set(p.pos[0] * cm, p.pos[1] * cm, p.pos[2] * cm);
+      if (p.type === "box" && p.fl) geo = corrugate(geo, V(p.fl[0]), V(p.fl[1]), tM);
+      if (p.type === "tab") mat = p.color ? tabColorMat(p.color) : matTab;
+      if (p.type === "slot") { mat = matSlot; edges = false; }
+    } else if (p.type === "lateral") {
+      // Silueta en (profundidad, alto), extruida en el espesor y girada para quedar de costado.
+      geo = new THREE.ExtrudeGeometry(shapeOf(p.pts), { depth: tM, bevelEnabled: false, curveSegments: 12 });
+      geo = corrugate(geo, V(p.fl[0]), V(p.fl[1]), tM);
+      mesh.rotation.y = -Math.PI / 2;
+      mesh.position.set(p.x * cm, 0, -D / 2 * cm);
+    } else if (p.type === "frente") {
+      // Cabezal: silueta en (ancho, alto), extruida hacia adelante.
+      geo = new THREE.ExtrudeGeometry(shapeOf(p.pts), { depth: tM, bevelEnabled: false, curveSegments: 12 });
+      geo = corrugate(geo, V(p.fl[0]), V(p.fl[1]), tM);
+      mesh.position.set(p.pos[0] * cm, p.pos[1] * cm, p.pos[2] * cm);
+    } else if (p.type === "arcY" || p.type === "arcX") {
+      // Pliegue: un cuarto de caño con el espesor de la placa
+      const s = new THREE.Shape(), [cp, cq] = p.c.map((v) => v * cm), Ro = p.R * cm, Ri = (p.R - p.t) * cm;
+      s.moveTo(cp + Ro * Math.cos(p.a0), cq + Ro * Math.sin(p.a0));
+      s.absarc(cp, cq, Ro, p.a0, p.a1, false);
+      s.lineTo(cp + Ri * Math.cos(p.a1), cq + Ri * Math.sin(p.a1));
+      s.absarc(cp, cq, Ri, p.a1, p.a0, true);
+      geo = new THREE.ExtrudeGeometry(s, { depth: p.len * cm, bevelEnabled: false, curveSegments: 8 });
+      if (p.type === "arcY") { geo.applyMatrix4(toY); geo = corrugate(geo, new THREE.Vector3(0, 1, 0), null, tM); }
+      else { geo.applyMatrix4(toX); geo.translate(-p.len * cm / 2, 0, 0); geo = corrugate(geo, new THREE.Vector3(1, 0, 0), null, tM); }
+    } else if (p.type === "u") {
+      // Viga en U: dos paredes y una base, plegadas, extruidas a lo ancho
+      const w = p.rw / 2, h = p.rh, tt = p.t, y = p.y, z = p.zc;
+      const pts = [[y, z - w], [y - h, z - w], [y - h, z + w], [y, z + w], [y, z + w - tt], [y - h + tt, z + w - tt], [y - h + tt, z - w + tt], [y, z - w + tt]];
+      geo = new THREE.ExtrudeGeometry(shapeOf(pts), { depth: p.len * cm, bevelEnabled: false });
+      geo.applyMatrix4(toX); geo.translate(-p.len * cm / 2, 0, 0);
+      geo = corrugate(geo, new THREE.Vector3(1, 0, 0), null, tM);
+    }
+    mesh.geometry = geo;
+    mesh.userData.mats = mat || (geo.groups.length ? corrMats : matBase);
+    mesh.material = mesh.userData.mats;
+    mesh.castShadow = p.type !== "slot"; mesh.receiveShadow = true;
+    mesh.userData.key = p.key;
+    if (edges) mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 25), edgeMat));
+    group.add(mesh); meshes.push(mesh);
+  }
+}
+
+/* ---------- Corrugado plástico ----------
+   Asigna a cada cara de la pieza uno de tres materiales y sus coordenadas de textura:
+   0 = cara de la placa (rayado suave de los alvéolos), 1 = canto cortado a través de los
+   alvéolos (se ven las celdas), 2 = canto paralelo a los alvéolos (las dos pieles).
+   f = dirección de los alvéolos, N = normal de la placa (null en piezas curvas). */
+let corrMats;
+function corrugate(geo, f, N, t) {
+  const g = geo.index ? geo.toNonIndexed() : geo;
+  const pos = g.attributes.position, n = pos.count;
+  const uv = new Float32Array(n * 2);
+  const pitch = Math.max(t, 0.0026);            // separación entre alvéolos ≈ espesor
+  const A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3(), nr = new THREE.Vector3(), b = new THREE.Vector3(), tmp = new THREE.Vector3();
+  let c = 0;
+  if (N) { for (let i = 0; i < n; i++) c += tmp.fromBufferAttribute(pos, i).dot(N); c /= n; }
+  g.clearGroups();
+  let cur = -1, start = 0;
+  for (let i = 0; i < n; i += 3) {
+    A.fromBufferAttribute(pos, i); B.fromBufferAttribute(pos, i + 1); C.fromBufferAttribute(pos, i + 2);
+    nr.subVectors(C, B).cross(tmp.subVectors(A, B)).normalize();
+    let type;
+    const isEnd = Math.abs(nr.dot(f)) > 0.7;
+    if (isEnd && !N) type = 2;                   // tapas de piezas curvas: color liso
+    else if (isEnd) type = 1;
+    else if (!N || Math.abs(nr.dot(N)) > 0.7) type = 0;
+    else type = 2;
+    // eje de la cara perpendicular a los alvéolos
+    if (N) b.crossVectors(N, f).normalize(); else if (!isEnd) b.crossVectors(nr, f).normalize();
+    const nn = N || nr;
+    const cc = N ? c : A.dot(nn);
+    for (let k = 0; k < 3; k++) {
+      tmp.fromBufferAttribute(pos, i + k);
+      let u, v;
+      if (isEnd && !N) { u = 0.5; v = 0.5; }
+      else if (type === 0) { u = tmp.dot(b) / pitch; v = tmp.dot(f) / 0.05; }
+      else if (type === 1) { u = tmp.dot(b) / pitch; v = (tmp.dot(nn) - cc) / t + 0.5; }
+      else { u = tmp.dot(f) / 0.05; v = (tmp.dot(nn) - cc) / t + 0.5; }
+      uv[(i + k) * 2] = u; uv[(i + k) * 2 + 1] = v;
+    }
+    if (type !== cur) { if (cur >= 0) g.addGroup(start, i - start, cur); cur = type; start = i; }
+  }
+  if (cur >= 0) g.addGroup(start, n - start, cur);
+  g.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+  return g;
+}
+
+function makeCorrugadoMaterials() {
+  const tex = (w, h, draw) => {
+    const c = document.createElement("canvas");
+    c.width = w; c.height = h;
+    draw(c.getContext("2d"), w, h);
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    return t;
+  };
+  // Cara: fondo blanco con las paredes internas de los alvéolos apenas marcadas
+  const surf = tex(32, 4, (g, w, h) => {
+    g.fillStyle = "#f6f4f0"; g.fillRect(0, 0, w, h);
+    g.fillStyle = "#e7e3dc"; g.fillRect(0, 0, 3, h);
+  });
+  // Canto cortado: celdas rectangulares entre las dos pieles
+  const end = tex(64, 64, (g, w, h) => {
+    g.fillStyle = "#f2efe9"; g.fillRect(0, 0, w, h);
+    const grd = g.createLinearGradient(0, 10, 0, 54);
+    grd.addColorStop(0, "#bdb6ab"); grd.addColorStop(0.5, "#a8a196"); grd.addColorStop(1, "#bdb6ab");
+    g.fillStyle = grd; g.fillRect(6, 11, 52, 42);
+  });
+  // Canto paralelo: las dos pieles marcadas
+  const side = tex(4, 64, (g, w, h) => {
+    g.fillStyle = "#ece9e3"; g.fillRect(0, 0, w, h);
+    g.fillStyle = "#d9d4cb"; g.fillRect(0, 9, w, 3); g.fillRect(0, 52, w, 3);
+  });
+  const m = (map) => new THREE.MeshStandardMaterial({ map, roughness: 0.75, metalness: 0 });
+  return [m(surf), m(end), m(side)];
+}
+
+/* Resalta en naranja una fila de la tabla de piezas. Si la pieza tiene caras impresas,
+   se marcan solo esas (lo de afuera, por donde va la impresión); si no, la pieza entera. */
+let matHiDecal;
+function highlight(key) {
+  const printed = key && decalMeshes.some((m) => m.userData.hl === key);
+  for (const m of meshes) m.material = !printed && m.userData.key === key ? matHi : m.userData.mats;
+  for (const m of decalMeshes) {
+    m.material = key && m.userData.hl === key ? matHiDecal : decalMats[m.userData.key];
+  }
+}
+
+/* ---------- Texturas del diseño (una por cara impresa) ---------- */
+const texs = {};       // key → { canvas, tex }
+const decalMats = {};  // key → material
+function textureFor(key) {
+  const P = PR[key];
+  if (!P || !THREE) return null;
+  const ppc = Math.min(14, 2048 / Math.max(P.w, P.h));         // píxeles por cm
+  const cw = Math.max(2, Math.round(P.w * ppc)), ch = Math.max(2, Math.round(P.h * ppc));
+  let T = texs[key];
+  if (!T || T.canvas.width !== cw || T.canvas.height !== ch) {
+    if (T) T.tex.dispose();
+    const canvas = document.createElement("canvas");
+    canvas.width = cw; canvas.height = ch;
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    T = texs[key] = { canvas, tex };
+    if (decalMats[key]) decalMats[key].map = tex;
+  }
+  paintTexture(key);
+  return T.tex;
+}
+/* Pestañas de piezas impresas (frente del estante, cenefa, zócalo): llevan el color de fondo de esa pieza,
+   con un material sin luces para que el color sea el mismo que en el diseño. */
+const tabMats = {};
+function tabColorMat(key) {
+  if (!tabMats[key]) tabMats[key] = new THREE.MeshBasicMaterial({ toneMapped: false });
+  tabMats[key].color.set(PR[key] ? pieceData(key).bg : "#FFFFFF");
+  return tabMats[key];
+}
+function paintTexture(key) {
+  if (tabMats[key]) tabMats[key].color.set(pieceData(key).bg);
+  const T = texs[key], P = PR[key];
+  if (!T || !P) return;
+  const ctx = T.canvas.getContext("2d");
+  const s = T.canvas.width / P.w;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, T.canvas.width, T.canvas.height);
+  drawPiece(ctx, key, s, { clip: false });
+  T.tex.needsUpdate = true;
+}
+function decalMaterial(key, tex) {
+  if (!decalMats[key]) {
+    // Material sin luces: el diseño se ve con los colores exactos de la imagen del cliente
+    // (con luz y sombras los amarillos y violetas se lavaban o se oscurecían).
+    decalMats[key] = new THREE.MeshBasicMaterial({
+      map: tex, toneMapped: false,
+      polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2,
+    });
+  }
+  decalMats[key].map = tex;
+  return decalMats[key];
+}
+
+/* ---------- Cámara: vistas y encuadre ---------- */
+let anim = null;
+const VIEWS = { persp: [0.75, 0.42, 1], front: [0, 0.12, 1], side: [1, 0.12, 0.02] };
+function setViewChip(view) {
+  document.querySelectorAll("[data-view]").forEach((b) => b.classList.toggle("is-on", b.dataset.view === view));
+}
+/* Posición de cámara que encuadra todo el exhibidor desde una vista. */
+function viewPose(view, aspect, k = 1.08) {
+  const W = state.ancho / 100, H = totalH() / 100, D = state.profundidad / 100;
+  const target = new THREE.Vector3(0, H / 2, 0);
+  const r = Math.sqrt(W * W + H * H + D * D) / 2;
+  const fitH = r / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2));
+  const fitW = fitH / Math.min(1, aspect);
+  const dist = Math.max(fitH, fitW) * k;
+  const dir = new THREE.Vector3(...VIEWS[view]).normalize();
+  return { target, pos: target.clone().addScaledVector(dir, dist), r, dist };
+}
+function frame(view = "persp", instant = false) {
+  if (!camera) return;
+  setViewChip(view);
+  const { target, pos, r, dist } = viewPose(view, camera.aspect);
+  controls.minDistance = r * 1.2;
+  controls.maxDistance = dist * 3;
+  if (instant) { camera.position.copy(pos); controls.target.copy(target); controls.update(); anim = null; return; }
+  anim = { t: 0, p0: camera.position.clone(), p1: pos, c0: controls.target.clone(), c1: target };
+}
+document.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => frame(b.dataset.view)));
+
+function tick() {
+  if (anim) {
+    anim.t = Math.min(1, anim.t + 0.06);
+    const e = 1 - Math.pow(1 - anim.t, 3);
+    camera.position.lerpVectors(anim.p0, anim.p1, e);
+    controls.target.lerpVectors(anim.c0, anim.c1, e);
+    if (anim.t === 1) anim = null;
+  }
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+/* ---------- Actualizar todo ---------- */
+const totalH = () => state.alto + (state.cabezal ? state.cabezalAlto : 0);
+let lastH = null;
+function update() {
+  const model = computePieces();
+  PR = printables(model);
+  renderPieces(model);
+  build();
+  // Si cambia el alto, el centro de giro acompaña
+  const H = totalH();
+  if (controls && lastH !== null && lastH !== H && !anim) controls.target.y = H / 200;
+  lastH = H;
+  save();
+}
+
+/* ==========================================================================
+   PASO 2 — DISEÑO
+   Cada cara impresa se diseña plana, vista desde afuera, en centímetros
+   (x hacia la derecha, y hacia abajo, origen arriba a la izquierda).
+   ========================================================================== */
+let PR = {};       // caras imprimibles con las medidas actuales
+let step = 1;
+const uid = () => Math.random().toString(36).slice(2, 9);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function printables(m) {
+  const rect = (w, h) => [[0, 0], [w, 0], [w, h], [0, h]];
+  const out = {};
+  if (m.cabPts) out.cabezal = { nombre: "Cenefa", corto: "Cenefa", w: m.cabW, h: m.cab, outline: m.cabPts.map(([x, y]) => [x + m.cabW / 2, m.cab - y]) };
+  // Laterales vistos desde afuera: en el izquierdo el frente queda a la derecha, en el derecho a la izquierda.
+  out.latIzq = { nombre: "Lateral izquierdo", corto: "Lateral izq.", w: m.D, h: m.body, outline: m.lat.map(([u, v]) => [u, m.body - v]),
+                 nota: "Visto desde afuera: el frente del exhibidor queda a la derecha." };
+  out.latDer = { nombre: "Lateral derecho", corto: "Lateral der.", w: m.D, h: m.body, outline: m.lat.map(([u, v]) => [m.D - u, m.body - v]),
+                 nota: "Visto desde afuera: el frente del exhibidor queda a la izquierda." };
+  out.frentin = { nombre: "Estantes (frente)", corto: "Estantes", w: m.inner, h: m.fr, outline: rect(m.inner, m.fr),
+                  nota: `Es el frente de los estantes: este diseño se repite en los ${m.n}.` };
+  if (m.f.zocalo) out.zocalo = { nombre: "Zócalo", corto: "Zócalo", w: m.inner, h: m.f.primerEstante, outline: rect(m.inner, m.f.primerEstante),
+                                 nota: "El panel de abajo, al frente del exhibidor." };
+  // El fondo no se diseña: lleva solo el sello de Gráfica Visualtech (se dibuja solo en el 3D).
+  out.fondo = { nombre: "Fondo (de atrás)", corto: "Fondo", w: m.inner, h: m.body, outline: rect(m.inner, m.body), fijo: true };
+  return out;
+}
+// Piezas que el cliente puede diseñar, en el orden de los botones.
+const PIECE_ORDER = ["cabezal", "latIzq", "latDer", "frentin", "zocalo"];
+
+/* ---------- Datos del diseño ---------- */
+const blank = () => ({ bg: "#FFFFFF", items: [] });
+let design = { link: true, pieces: {}, fonts: [] };
+const dataKey = (key) => (key === "latDer" && design.link ? "latIzq" : key);
+const pieceData = (key) => (design.pieces[dataKey(key)] ||= blank());
+
+/* ---------- Guardado en el navegador (IndexedDB: entra imágenes y tipografías) ---------- */
+const idb = (() => {
+  let p;
+  const db = () => p ||= new Promise((res, rej) => {
+    const r = indexedDB.open("visualstudio", 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("kv");
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+  return {
+    get: async (k) => { const d = await db(); return new Promise((res, rej) => { const q = d.transaction("kv").objectStore("kv").get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); },
+    set: async (k, v) => { const d = await db(); return new Promise((res, rej) => { const tx = d.transaction("kv", "readwrite"); tx.objectStore("kv").put(v, k); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); },
+  };
+})();
+const DKEY = "diseno-v1";
+let saveT, designLoaded = false;   // no guardar hasta haber leído lo que ya había
+function saveDesign() {
+  if (!designLoaded) return;
+  clearTimeout(saveT);
+  saveT = setTimeout(() => idb.set(DKEY, { link: design.link, pieces: design.pieces, fonts: design.fonts }).catch(() => {}), 500);
+}
+async function registerFont(name, data) {
+  const ff = new FontFace(name, data);
+  await ff.load();
+  document.fonts.add(ff);
+}
+async function loadDesign() {
+  try {
+    const d = await idb.get(DKEY);
+    if (d) {
+      design = { link: d.link ?? true, pieces: d.pieces || {}, fonts: d.fonts || [] };
+      for (const f of design.fonts) { try { await registerFont(f.name, f.data); } catch {} }
+    }
+  } catch {}
+  designLoaded = true;
+  refreshAll();
+  if (step === 2) renderEdPanel();
+}
+
+/* ---------- Dibujo de una cara (lo usan el editor y las texturas del 3D) ---------- */
+const imgCache = new Map();
+function getImg(src) {
+  let im = imgCache.get(src);
+  if (!im) { im = new Image(); im.onload = () => refreshAll(); im.src = src; imgCache.set(src, im); }
+  return im;
+}
+const LH = 1.2;   // interlineado
+const mctx = document.createElement("canvas").getContext("2d");
+const fontStr = (it, px) => `${it.italic ? "italic " : ""}${it.bold ? 700 : 400} ${px}px "${it.font}", sans-serif`;
+function measure(it) {
+  if (it.type !== "text") return;
+  mctx.font = fontStr(it, 100);
+  const lines = (it.text || " ").split("\n");
+  const wmax = Math.max(...lines.map((l) => mctx.measureText(l || " ").width));
+  it._w = Math.max(0.3, (wmax / 100) * it.size);
+  it._h = lines.length * it.size * LH;
+}
+const iw = (it) => (it.type === "text" ? (measure(it), it._w) : it.w);
+const ih = (it) => (it.type === "text" ? (measure(it), it._h) : it.h);
+
+function outlinePath(ctx, pts, s) {
+  pts.forEach(([x, y], i) => (i ? ctx.lineTo(x * s, y * s) : ctx.moveTo(x * s, y * s)));
+  ctx.closePath();
+}
+function drawItem(ctx, it, s) {
+  ctx.save();
+  ctx.translate(it.x * s, it.y * s);
+  ctx.rotate(it.rot || 0);
+  if (it.type === "img") {
+    const im = getImg(it.src);
+    if (im.complete && im.naturalWidth) ctx.drawImage(im, (-it.w * s) / 2, (-it.h * s) / 2, it.w * s, it.h * s);
+  } else {
+    measure(it);
+    ctx.font = fontStr(it, it.size * s);
+    ctx.fillStyle = it.color;
+    ctx.textBaseline = "middle";
+    ctx.textAlign = it.align || "center";
+    const lh = it.size * LH * s;
+    const x = it.align === "left" ? (-it._w * s) / 2 : it.align === "right" ? (it._w * s) / 2 : 0;
+    it.text.split("\n").forEach((l, i) => ctx.fillText(l, x, (-it._h / 2) * s + lh * (i + 0.5)));
+  }
+  ctx.restore();
+}
+function drawPiece(ctx, key, s, { clip = true, bleed = CFG.sangrado } = {}) {
+  const P = PR[key], d = P.fijo ? blank() : pieceData(key);
+  ctx.save();
+  if (clip) { ctx.beginPath(); outlinePath(ctx, P.outline, s); ctx.clip(); }
+  ctx.fillStyle = d.bg;
+  ctx.fillRect(-bleed * s, -bleed * s, (P.w + 2 * bleed) * s, (P.h + 2 * bleed) * s);
+  for (const it of d.items) drawItem(ctx, it, s);
+  if (key === "fondo") drawSello(ctx, P, s);
+  ctx.restore();
+}
+
+/* ---------- Sello de Gráfica Visualtech (fijo en el fondo) ---------- */
+let qrLib = null;
+const qrCache = new Map();
+import("https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/+esm")
+  .then((m) => { qrLib = m.default || m; refreshAll(); })
+  .catch(() => {});
+function qrMatrix(text) {
+  if (typeof qrLib !== "function") return null;
+  let q = qrCache.get(text);
+  if (!q) {
+    const qr = qrLib(0, "M"); qr.addData(text); qr.make();
+    q = { n: qr.getModuleCount(), dark: (r, c) => qr.isDark(r, c) };
+    qrCache.set(text, q);
+  }
+  return q;
+}
+function drawSello(ctx, P, s) {
+  const S = CFG.sello, w = S.ancho, h = S.ancho, x = (P.w - w) / 2, y = S.margenArriba;
+  if (P.w < w + 1 || P.h < y + h + 1) return;
+  const X = (v) => (x + v) * s, Y = (v) => (y + v) * s, max = (w - 0.5) * s;
+  ctx.save();
+  ctx.fillStyle = "#fff"; ctx.strokeStyle = "#D07F29"; ctx.lineWidth = 0.05 * s;
+  ctx.beginPath(); ctx.roundRect(X(0), Y(0), w * s, h * s, 0.4 * s); ctx.fill(); ctx.stroke();
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillStyle = "#D07F29"; ctx.font = `500 ${0.28 * s}px Inter, sans-serif`;
+  ctx.fillText(S.titulo, X(w / 2), Y(0.55), max);
+  ctx.fillStyle = "#1D1D1B"; ctx.font = `700 ${0.38 * s}px Inter, sans-serif`;
+  ctx.fillText(S.marca, X(w / 2), Y(1.05), max);
+  const qs = 1.7, gq = 0.3, tot = S.qrs.length * qs + (S.qrs.length - 1) * gq;
+  S.qrs.forEach((url, i) => {
+    const qx = (w - tot) / 2 + i * (qs + gq), qy = 1.5, m = qrMatrix(url);
+    if (!m) { ctx.fillStyle = "#e6e3de"; ctx.fillRect(X(qx), Y(qy), qs * s, qs * s); return; }
+    const cell = qs / m.n;
+    ctx.fillStyle = "#1D1D1B";
+    for (let r = 0; r < m.n; r++) for (let c = 0; c < m.n; c++)
+      if (m.dark(r, c)) ctx.fillRect(X(qx + c * cell), Y(qy + r * cell), cell * s + 0.5, cell * s + 0.5);
+  });
+  ctx.fillStyle = "#D07F29"; ctx.font = `500 ${0.24 * s}px Inter, sans-serif`;
+  ctx.fillText(S.web, X(w / 2), Y(3.65), max);
+  ctx.fillStyle = "#808080"; ctx.font = `400 ${0.22 * s}px Inter, sans-serif`;
+  ctx.fillText(S.lugar, X(w / 2), Y(4.1), max);
+  ctx.restore();
+}
+
+/* ---------- Editor ---------- */
+const ED = { key: "latIzq", sel: null, s: 1, ox: 0, oy: 0, dpr: 1, cw: 0, ch: 0, act: null };
+const edCanvas = $("#ed-canvas"), edCtx = edCanvas.getContext("2d");
+const selItem = () => (ED.sel ? pieceData(ED.key).items.find((i) => i.id === ED.sel) : null);
+
+function edLayout() {
+  const box = $("#editor"), P = PR[ED.key];
+  const cw = box.clientWidth, ch = box.clientHeight;
+  if (!cw || !ch || !P) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  edCanvas.width = Math.round(cw * dpr); edCanvas.height = Math.round(ch * dpr);
+  const mobile = cw < 700;
+  const padT = mobile ? 52 : 76, padB = mobile ? 16 : 52, padL = mobile ? 16 : 56;
+  const padR = mobile ? 132 : cw > 900 ? 340 : 56;   // lugar para la vista 3D chica
+  const s = Math.min((cw - padL - padR) / P.w, (ch - padT - padB) / P.h);
+  Object.assign(ED, { dpr, cw, ch, s,
+    ox: padL + (cw - padL - padR - P.w * s) / 2, oy: padT + (ch - padT - padB - P.h * s) / 2 });
+}
+
+function handles(it, s) {
+  const w = (iw(it) * s) / 2, h = (ih(it) * s) / 2, c = Math.cos(it.rot || 0), n = Math.sin(it.rot || 0);
+  const cx = it.x * s, cy = it.y * s;
+  const pt = (x, y) => [cx + x * c - y * n, cy + x * n + y * c];
+  return { corners: [pt(-w, -h), pt(w, -h), pt(w, h), pt(-w, h)], top: pt(0, -h), rot: pt(0, -h - 28) };
+}
+
+function edDraw() {
+  if (step !== 2 || !PR[ED.key]) return;
+  const { dpr, cw, ch, s, ox, oy } = ED, P = PR[ED.key], ctx = edCtx, d = pieceData(ED.key);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cw, ch);
+  ctx.save();
+  ctx.translate(ox, oy);
+  // sombra de la pieza
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,.14)"; ctx.shadowBlur = 26; ctx.shadowOffsetY = 8;
+  ctx.beginPath(); outlinePath(ctx, P.outline, s); ctx.fillStyle = "#fff"; ctx.fill();
+  ctx.restore();
+  // diseño recortado a la pieza
+  drawPiece(ctx, ED.key, s);
+  // lo que queda afuera se ve tenue (no se imprime)
+  ctx.save();
+  ctx.beginPath(); ctx.rect(-ox, -oy, cw, ch); outlinePath(ctx, P.outline, s); ctx.clip("evenodd");
+  ctx.globalAlpha = 0.22;
+  for (const it of d.items) drawItem(ctx, it, s);
+  ctx.restore();
+  // línea de corte
+  ctx.beginPath(); outlinePath(ctx, P.outline, s);
+  ctx.strokeStyle = "#E30613"; ctx.lineWidth = 1.2; ctx.stroke();
+  // selección
+  const it = selItem();
+  if (it) {
+    const k = handles(it, s);
+    ctx.strokeStyle = "#D07F29"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); k.corners.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.closePath(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(...k.top); ctx.lineTo(...k.rot); ctx.stroke();
+    ctx.fillStyle = "#fff";
+    for (const [x, y] of k.corners) { ctx.beginPath(); ctx.rect(x - 5, y - 5, 10, 10); ctx.fill(); ctx.stroke(); }
+    ctx.beginPath(); ctx.arc(k.rot[0], k.rot[1], 7, 0, Math.PI * 2); ctx.fillStyle = "#D07F29"; ctx.fill();
+  }
+  ctx.restore();
+}
+
+function hitHandle(it, px, py) {
+  const k = handles(it, ED.s), near = (p, r) => Math.hypot(p[0] - px, p[1] - py) <= r;
+  if (near(k.rot, 14)) return "rot";
+  if (k.corners.some((c) => near(c, 13))) return "scale";
+  return null;
+}
+function hitItem(px, py) {
+  const items = pieceData(ED.key).items;
+  for (let i = items.length - 1; i >= 0; i--) {
+    const it = items[i], dx = px / ED.s - it.x, dy = py / ED.s - it.y, r = -(it.rot || 0);
+    const lx = dx * Math.cos(r) - dy * Math.sin(r), ly = dx * Math.sin(r) + dy * Math.cos(r);
+    if (Math.abs(lx) <= iw(it) / 2 + 0.2 && Math.abs(ly) <= ih(it) / 2 + 0.2) return it;
+  }
+  return null;
+}
+
+/* Algo cambió en el diseño: redibujar editor y texturas (una vez por cuadro) y guardar. */
+let rafPending = false, dirtyAll = false;
+function changed(all = false) {
+  dirtyAll ||= all;
+  saveDesign();                      // siempre se guarda, aunque el redibujo quede pendiente
+  if (rafPending) return;
+  rafPending = true;
+  const run = () => {
+    rafPending = false;
+    edDraw();
+    const dk = dataKey(ED.key);
+    for (const k of Object.keys(PR)) if (dirtyAll || dataKey(k) === dk) paintTexture(k);
+    dirtyAll = false;
+  };
+  // con la pestaña en segundo plano el navegador frena los cuadros de pantalla: se usa un temporizador
+  if (document.hidden) setTimeout(run, 30); else requestAnimationFrame(run);
+}
+function refreshAll() { changed(true); }
+
+function select(id) {
+  ED.sel = id;
+  renderProps();
+  edDraw();
+}
+
+edCanvas.addEventListener("pointerdown", (e) => {
+  e.preventDefault();
+  const px = e.offsetX - ED.ox, py = e.offsetY - ED.oy;
+  let it = selItem(), mode = it && hitHandle(it, px, py);
+  if (!mode) { it = hitItem(px, py); mode = it ? "move" : null; }
+  if (!it) { select(null); return; }
+  if (it.id !== ED.sel) select(it.id);
+  edCanvas.setPointerCapture(e.pointerId);
+  const cx = it.x * ED.s, cy = it.y * ED.s;
+  ED.act = { mode, it, px, py, x: it.x, y: it.y, w: it.w, h: it.h, size: it.size, rot: it.rot || 0,
+             d0: Math.max(1, Math.hypot(px - cx, py - cy)), a0: Math.atan2(py - cy, px - cx) };
+  e.preventDefault();
+});
+edCanvas.addEventListener("pointermove", (e) => {
+  const px = e.offsetX - ED.ox, py = e.offsetY - ED.oy, a = ED.act;
+  if (!a) {
+    const it = selItem(), h = it && hitHandle(it, px, py);
+    edCanvas.style.cursor = h === "rot" ? "grab" : h === "scale" ? "nwse-resize" : hitItem(px, py) ? "move" : "default";
+    return;
+  }
+  const it = a.it, P = PR[ED.key], s = ED.s, cx = it.x * s, cy = it.y * s;
+  if (a.mode === "move") {
+    it.x = a.x + (px - a.px) / s;
+    it.y = a.y + (py - a.py) / s;
+    // se pega al centro de la pieza
+    if (Math.abs(it.x - P.w / 2) < 6 / s) it.x = P.w / 2;
+    if (Math.abs(it.y - P.h / 2) < 6 / s) it.y = P.h / 2;
+  } else if (a.mode === "scale") {
+    const f = Math.max(0.03, Math.hypot(px - cx, py - cy) / a.d0);
+    if (it.type === "img") { it.w = a.w * f; it.h = a.h * f; } else { it.size = Math.max(0.2, a.size * f); }
+  } else if (a.mode === "rot") {
+    let r = a.rot + Math.atan2(py - cy, px - cx) - a.a0;
+    const q = Math.round(r / (Math.PI / 2)) * (Math.PI / 2);
+    if (Math.abs(r - q) < 0.07) r = q;   // se pega a 0°, 90°, 180°…
+    it.rot = r;
+  }
+  changed();
+});
+const endAct = () => { if (ED.act) { ED.act = null; renderProps(); renderQuality(); } };
+edCanvas.addEventListener("pointerup", endAct);
+edCanvas.addEventListener("pointercancel", endAct);
+edCanvas.addEventListener("dblclick", () => { if (selItem()?.type === "text") $("#p-text")?.focus(); });
+
+document.addEventListener("keydown", (e) => {
+  if (step !== 2 || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+  const it = selItem();
+  if (!it) return;
+  const st = e.shiftKey ? 1 : 0.1;
+  const moves = { ArrowLeft: [-st, 0], ArrowRight: [st, 0], ArrowUp: [0, -st], ArrowDown: [0, st] };
+  if (e.key === "Delete" || e.key === "Backspace") { act("del"); e.preventDefault(); }
+  else if (moves[e.key]) { it.x += moves[e.key][0]; it.y += moves[e.key][1]; changed(); e.preventDefault(); }
+  else if (e.key === "Escape") select(null);
+});
+
+new ResizeObserver(() => { edLayout(); edDraw(); }).observe($("#editor"));
+
+/* ---------- Agregar imágenes y textos ---------- */
+const readURL = (file) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
+const loadImage = (src) => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+
+async function addImageFile(file) {
+  const url = await readURL(file);
+  const im = await loadImage(url);
+  const svg = file.type.includes("svg");
+  const natW = im.naturalWidth || 1000, natH = im.naturalHeight || 1000;
+  let src = url;
+  // Las imágenes muy grandes se achican para guardarlas (es una referencia visual).
+  const MAX = 2400;
+  if (!svg && Math.max(natW, natH) > MAX) {
+    const k = MAX / Math.max(natW, natH), c = document.createElement("canvas");
+    c.width = Math.round(natW * k); c.height = Math.round(natH * k);
+    c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+    src = c.toDataURL(file.type === "image/jpeg" ? "image/jpeg" : "image/png", 0.92);
+  }
+  const P = PR[ED.key];
+  let w = P.w * 0.6, h = (w * natH) / natW;
+  if (h > P.h * 0.6) { h = P.h * 0.6; w = (h * natW) / natH; }
+  const it = { id: uid(), type: "img", name: file.name, src, natW, natH, svg, x: P.w / 2, y: P.h / 2, w, h, rot: 0 };
+  pieceData(ED.key).items.push(it);
+  return it;
+}
+$("#ed-file").addEventListener("change", async (e) => {
+  const files = [...e.target.files];
+  e.target.value = "";
+  let last = null;
+  for (const f of files) {
+    try { last = await addImageFile(f); }
+    catch { alert(`No se pudo abrir "${f.name}". Probá con PNG, JPG o SVG.`); }
+  }
+  if (last) { select(last.id); changed(); renderQuality(); }
+});
+$("#ed-add-text").addEventListener("click", () => {
+  const P = PR[ED.key];
+  const it = { id: uid(), type: "text", text: "Tu texto", font: CFG.tipografias[0], size: Math.max(0.5, Math.min(P.w * 0.12, P.h * 0.45)),
+               color: "#1D1D1B", bold: true, italic: false, align: "center", x: P.w / 2, y: P.h / 2, rot: 0 };
+  pieceData(ED.key).items.push(it);
+  select(it.id);
+  changed();
+  document.fonts.load(fontStr(it, 40)).then(() => refreshAll());
+  const ta = $("#p-text");
+  if (ta && matchMedia("(min-width: 901px)").matches) { ta.focus(); ta.select(); }
+});
+
+/* ---------- Acciones sobre el elemento seleccionado ---------- */
+function act(a) {
+  const d = pieceData(ED.key), it = selItem(), P = PR[ED.key];
+  if (!it) return;
+  const i = d.items.indexOf(it);
+  if (a === "front") { d.items.splice(i, 1); d.items.push(it); }
+  else if (a === "back") { d.items.splice(i, 1); d.items.unshift(it); }
+  else if (a === "center") { it.x = P.w / 2; it.y = P.h / 2; }
+  else if (a === "dup") { const c = { ...it, id: uid(), x: it.x + 1, y: it.y + 1 }; d.items.push(c); ED.sel = c.id; }
+  else if (a === "del") { d.items.splice(i, 1); ED.sel = null; }
+  else if (a === "straight") { it.rot = 0; }
+  else if (a === "cover" || a === "fit") {
+    const f = a === "cover" ? Math.max(P.w / it.w, P.h / it.h) : Math.min(P.w / it.w, P.h / it.h) * 0.9;
+    it.w *= f; it.h *= f; it.x = P.w / 2; it.y = P.h / 2; it.rot = 0;
+  }
+  changed();
+  renderProps();
+  renderQuality();
+}
+$("#ed-props-group").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-act]");
+  if (b) act(b.dataset.act);
+});
+
+/* ---------- Panel del paso 2 ---------- */
+function renderEdPanel() {
+  if (!PR[ED.key] || !PIECE_ORDER.includes(ED.key)) ED.key = "latIzq";
+  const keys = PIECE_ORDER.filter((k) => PR[k]);
+  $("#ed-pieces").innerHTML = keys.map((k) =>
+    `<button data-k="${k}" class="${k === ED.key ? "is-on" : ""}" aria-pressed="${k === ED.key}">${PR[k].corto}</button>`).join("");
+  $("#ed-pieces").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+    ED.key = b.dataset.k; ED.sel = null;
+    renderEdPanel(); edLayout(); edDraw();
+  }));
+  $("#ed-link").checked = design.link;
+  $("#ed-link").closest(".switch").hidden = !(ED.key === "latIzq" || ED.key === "latDer");
+  const P = PR[ED.key];
+  $("#ed-piece-note").textContent = (P.nota || "") + (design.link && (ED.key === "latIzq" || ED.key === "latDer") ? " Lo que hagas acá se copia en el otro lateral." : "");
+  $("#ed-title").textContent = P.nombre;
+  $("#ed-size").textContent = `${fmtCm(P.w)} × ${fmtCm(P.h)} cm`;
+  renderBg(); renderProps(); renderFonts(); renderQuality();
+}
+
+function swatchesHTML(cur, id) {
+  cur = (cur || "").toUpperCase();
+  return CFG.colores.map((c) => `<button class="sw ${c.toUpperCase() === cur ? "is-on" : ""}" style="background:${c}" data-c="${c}" aria-label="Color ${c}"></button>`).join("") +
+    `<label class="sw-custom" title="Otro color">+<input type="color" id="${id}" value="${/^#[0-9A-F]{6}$/.test(cur) ? cur.toLowerCase() : "#000000"}"></label>`;
+}
+function renderBg() {
+  const box = $("#ed-bg");
+  box.innerHTML = swatchesHTML(pieceData(ED.key).bg, "bg-custom");
+  box.querySelectorAll("[data-c]").forEach((b) => b.addEventListener("click", () => { pieceData(ED.key).bg = b.dataset.c; changed(); renderBg(); }));
+  const inp = $("#bg-custom");
+  inp.addEventListener("input", () => { pieceData(ED.key).bg = inp.value.toUpperCase(); changed(); });
+  inp.addEventListener("change", renderBg);
+}
+$("#ed-bg-all").addEventListener("click", () => {
+  const bg = pieceData(ED.key).bg;
+  for (const k of PIECE_ORDER) if (PR[k]) pieceData(k).bg = bg;
+  refreshAll();
+});
+$("#ed-link").addEventListener("change", (e) => {
+  design.link = e.target.checked;
+  if (!design.link) {   // al separar, el derecho arranca igual que el izquierdo
+    const src = design.pieces.latIzq || blank();
+    design.pieces.latDer = { bg: src.bg, items: src.items.map((i) => ({ ...i, id: uid() })) };
+  }
+  ED.sel = null;
+  refreshAll(); renderEdPanel();
+});
+
+function renderProps() {
+  const it = selItem(), grp = $("#ed-props-group");
+  grp.hidden = !it || step !== 2;
+  if (!it) return;
+  const box = $("#ed-props");
+  if (it.type === "text") {
+    $("#ed-props-title").textContent = "Texto";
+    const fonts = [...CFG.tipografias, ...design.fonts.map((f) => f.name)];
+    box.innerHTML = `
+      <label class="prop"><span>Texto</span><textarea id="p-text" rows="2">${esc(it.text)}</textarea></label>
+      <div class="row2">
+        <label class="prop"><span>Tipografía</span><select id="p-font">${fonts.map((f) => `<option ${f === it.font ? "selected" : ""} style="font-family:'${esc(f)}'">${esc(f)}</option>`).join("")}</select></label>
+        <label class="prop"><span>Alto de letra (cm)</span><input type="number" id="p-size" min="0.2" step="0.1" value="${(Math.round(it.size * 10) / 10)}"></label>
+      </div>
+      <div class="prop"><span>Color</span><div class="swatches" id="p-color">${swatchesHTML(it.color, "p-color-custom")}</div></div>
+      <div class="actions" style="margin-top:0">
+        <button class="mini ${it.bold ? "is-on" : ""}" data-t="bold"><b>Negrita</b></button>
+        <button class="mini ${it.italic ? "is-on" : ""}" data-t="italic"><i>Cursiva</i></button>
+        <button class="mini ${it.align === "left" ? "is-on" : ""}" data-al="left">Izq.</button>
+        <button class="mini ${it.align === "center" ? "is-on" : ""}" data-al="center">Centro</button>
+        <button class="mini ${it.align === "right" ? "is-on" : ""}" data-al="right">Der.</button>
+        <button class="mini" data-act="straight">Enderezar</button>
+      </div>`;
+    $("#p-text").addEventListener("input", (e) => {
+      it.text = e.target.value;
+      // si al escribir el texto queda más ancho que la pieza, se achica para que entre
+      const P = PR[ED.key];
+      measure(it);
+      if (it._w > P.w * 0.92) {
+        it.size *= (P.w * 0.92) / it._w;
+        $("#p-size").value = Math.round(it.size * 10) / 10;
+      }
+      changed();
+    });
+    $("#p-font").addEventListener("change", (e) => { it.font = e.target.value; changed(); document.fonts.load(fontStr(it, 40)).then(() => refreshAll()); });
+    $("#p-size").addEventListener("input", (e) => { const v = parseFloat(e.target.value); if (v > 0) { it.size = v; changed(); } });
+    box.querySelectorAll("#p-color [data-c]").forEach((b) => b.addEventListener("click", () => { it.color = b.dataset.c; changed(); renderProps(); }));
+    $("#p-color-custom").addEventListener("input", (e) => { it.color = e.target.value.toUpperCase(); changed(); });
+    box.querySelectorAll("[data-t]").forEach((b) => b.addEventListener("click", () => { it[b.dataset.t] = !it[b.dataset.t]; changed(); renderProps(); document.fonts.load(fontStr(it, 40)).then(() => refreshAll()); }));
+    box.querySelectorAll("[data-al]").forEach((b) => b.addEventListener("click", () => { it.align = b.dataset.al; changed(); renderProps(); }));
+  } else {
+    $("#ed-props-title").textContent = "Imagen";
+    const dpi = it.svg ? null : Math.round(it.natW / (it.w / 2.54));
+    box.innerHTML = `
+      <p class="info" style="margin:0 0 12px"><b>${esc(it.name || "Imagen")}</b><br>
+        ${fmtCm(it.w)} × ${fmtCm(it.h)} cm · ${dpi === null ? "vectorial" : `${dpi} dpi${dpi < CFG.dpiMinimo ? " (baja)" : ""}`}</p>
+      <div class="actions" style="margin-top:0">
+        <button class="mini" data-act="cover">Cubrir toda la pieza</button>
+        <button class="mini" data-act="fit">Que entre en la pieza</button>
+        <button class="mini" data-act="straight">Enderezar</button>
+      </div>`;
+  }
+}
+
+function renderFonts() {
+  $("#ed-fonts-list").textContent = design.fonts.length ? "Cargadas: " + design.fonts.map((f) => f.name).join(", ") : "";
+}
+$("#ed-font").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  e.target.value = "";
+  if (!file) return;
+  try {
+    const data = await file.arrayBuffer();
+    const name = file.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").trim();
+    await registerFont(name, data);
+    design.fonts = design.fonts.filter((f) => f.name !== name).concat({ name, data });
+    const it = selItem();
+    if (it?.type === "text") it.font = name;
+    refreshAll(); renderProps(); renderFonts();
+  } catch {
+    alert("No se pudo leer la tipografía. Probá con un archivo TTF, OTF o WOFF.");
+  }
+});
+
+function renderQuality() {
+  const out = [], seen = new Set();
+  for (const k of PIECE_ORDER.filter((k) => PR[k])) {
+    const dk = dataKey(k);
+    if (seen.has(dk)) continue;
+    seen.add(dk);
+    for (const it of pieceData(k).items) {
+      if (it.type !== "img" || it.svg) continue;
+      const dpi = it.natW / (it.w / 2.54);
+      if (dpi < CFG.dpiMinimo) {
+        const where = PR[k].nombre + (dk === "latIzq" && design.link ? " y derecho" : "");
+        out.push(`<p class="q-item"><b>${esc(where)}:</b> «${esc(it.name || "imagen")}» queda a ${Math.round(dpi)} dpi. Para que se imprima nítida conviene ${CFG.dpiMinimo} dpi o más: subí una versión más grande o achicala.</p>`);
+      }
+    }
+  }
+  $("#ed-quality").innerHTML = out.length ? out.join("") :
+    `<p class="q-ok"><span class="dia" style="background:#2e7d32"></span>Todo bien: las imágenes tienen buena resolución.</p>`;
+}
+
+/* ---------- Agrandar / achicar la vista previa 3D en el paso 2 ---------- */
+function setBigPreview(on) {
+  document.body.classList.toggle("preview-big", on);
+  const b = $("#vs-expand");
+  b.setAttribute("aria-label", on ? "Volver al editor" : "Agrandar vista previa");
+  b.title = on ? "Volver al editor" : "Agrandar vista previa";
+  requestAnimationFrame(() => { if (renderer) { resize(); frame("persp", !on); } edLayout(); edDraw(); });
+}
+$("#vs-expand").addEventListener("click", () => setBigPreview(!document.body.classList.contains("preview-big")));
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && document.body.classList.contains("preview-big")) setBigPreview(false);
+});
+
+/* ==========================================================================
+   PASO 3 — ENVIAR: resumen, PDF de referencia y WhatsApp
+   ========================================================================== */
+const CLIENTE = "visualstudio-cliente";
+const codigo = (() => {   // código de referencia: va en el PDF, en el nombre del archivo y en el mensaje
+  const d = new Date(), p = (n) => String(n).padStart(2, "0");
+  return `VS-${String(d.getFullYear()).slice(2)}${p(d.getMonth() + 1)}${p(d.getDate())}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+})();
+const fmtNum = (v) => fmtCm(v).replace(/\s/g, "");
+
+function resumen() {
+  const f = CFG.formatos[state.formato];
+  const cab = state.cabezal ? state.cabezalAlto : 0;
+  const filas = [
+    ["Formato", f.nombre],
+    ["Estantes", String(state.estantes)],
+    ["Ancho", `${fmtNum(state.ancho)} cm`],
+    [f.perfil === "inclinado" ? "Profundidad (base)" : "Profundidad", `${fmtNum(state.profundidad)} cm`],
+    ["Alto del cuerpo", `${fmtNum(state.alto)} cm`],
+    ["Cenefa", cab ? `${fmtNum(cab)} cm` : "Sin cenefa"],
+    ["Alto total", `${fmtNum(state.alto + cab)} cm`],
+  ];
+  if (f.refuerzo) filas.push(["Viga de refuerzo", state.refuerzo !== false ? "Sí" : "No"]);
+  filas.push(["Espesor", `${String(state.espesor).replace(".", ",")} mm`], ["Material", `${CFG.material} · ${CFG.impresion}`]);
+  return filas;
+}
+// Caras con diseño cargado (color distinto de blanco o algún elemento)
+function piezasDisenadas() {
+  return PIECE_ORDER.filter((k) => PR[k]).filter((k) => {
+    const d = pieceData(k);
+    return d.items.length || (d.bg || "").toUpperCase() !== "#FFFFFF";
+  });
+}
+// Avisos de baja resolución, en texto plano (para el panel y el PDF)
+function avisosCalidad() {
+  const out = [], seen = new Set();
+  for (const k of PIECE_ORDER.filter((k) => PR[k])) {
+    const dk = dataKey(k);
+    if (seen.has(dk)) continue;
+    seen.add(dk);
+    for (const it of pieceData(k).items) {
+      if (it.type !== "img" || it.svg) continue;
+      const dpi = it.natW / (it.w / 2.54);
+      if (dpi < CFG.dpiMinimo) out.push(`${PR[k].nombre}: "${it.name || "imagen"}" a ${Math.round(dpi)} dpi`);
+    }
+  }
+  return out;
+}
+
+function renderSend() {
+  const disenadas = piezasDisenadas();
+  $("#summary").innerHTML = resumen().map(([a, b]) => `<tr><td>${esc(a)}</td><td style="text-align:right">${esc(b)}</td></tr>`).join("") +
+    `<tr><td>Piezas diseñadas</td><td style="text-align:right">${disenadas.length ? esc(disenadas.map((k) => PR[k].corto).join(", ")) : "Ninguna (en blanco)"}</td></tr>` +
+    `<tr><td>Código</td><td style="text-align:right"><b>${codigo}</b></td></tr>`;
+  const av = avisosCalidad();
+  $("#sum-quality").innerHTML = av.length
+    ? av.map((a) => `<p class="q-item">${esc(a)}. Conviene ${CFG.dpiMinimo} dpi o más.</p>`).join("")
+    : "";
+  try {
+    const c = JSON.parse(localStorage.getItem(CLIENTE) || "{}");
+    if (c.nombre && !$("#c-nombre").value) $("#c-nombre").value = c.nombre;
+    if (c.mail && !$("#c-mail").value) $("#c-mail").value = c.mail;
+  } catch {}
+}
+
+function cliente() {
+  const nombre = $("#c-nombre").value.trim(), mail = $("#c-mail").value.trim();
+  const err = $("#c-error");
+  let msg = "";
+  if (nombre.length < 2) msg = "Escribí tu nombre.";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)) msg = "Revisá el mail: parece que no está completo.";
+  err.classList.toggle("is-on", !!msg);
+  err.lastElementChild.textContent = msg;
+  if (msg) { (nombre.length < 2 ? $("#c-nombre") : $("#c-mail")).focus(); return null; }
+  try { localStorage.setItem(CLIENTE, JSON.stringify({ nombre, mail })); } catch {}
+  return { nombre, mail };
+}
+
+/* Foto del 3D desde una vista, en un cuadrado de "size" píxeles, con fondo blanco. */
+function capture3D(view, size = 1100) {
+  if (!renderer) return null;
+  highlight(null);
+  const prev = { size: renderer.getSize(new THREE.Vector2()), pr: renderer.getPixelRatio(), aspect: camera.aspect,
+                 pos: camera.position.clone(), target: controls.target.clone() };
+  renderer.setPixelRatio(1);
+  renderer.setSize(size, size, false);
+  camera.aspect = 1; camera.updateProjectionMatrix();
+  const { pos, target } = viewPose(view, 1, 0.92);
+  camera.position.copy(pos); camera.lookAt(target);
+  renderer.setClearColor(0xffffff, 1);
+  renderer.render(scene, camera);
+  const url = renderer.domElement.toDataURL("image/jpeg", 0.9);
+  renderer.setClearColor(0x000000, 0);
+  renderer.setPixelRatio(prev.pr);
+  renderer.setSize(prev.size.x, prev.size.y, false);
+  camera.aspect = prev.aspect; camera.updateProjectionMatrix();
+  camera.position.copy(prev.pos); controls.target.copy(prev.target); camera.lookAt(prev.target);
+  return url;
+}
+
+/* Imagen plana de una pieza con su diseño y la línea de corte. */
+function pieceImage(key, ppc = 12) {
+  const P = PR[key], m = 4;
+  const c = document.createElement("canvas");
+  c.width = Math.ceil(P.w * ppc) + 2 * m; c.height = Math.ceil(P.h * ppc) + 2 * m;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height);
+  ctx.translate(m, m);
+  drawPiece(ctx, key, ppc);
+  ctx.beginPath(); outlinePath(ctx, P.outline, ppc);
+  ctx.strokeStyle = "#E30613"; ctx.lineWidth = 2; ctx.stroke();
+  return { url: c.toDataURL("image/jpeg", 0.92), w: P.w, h: P.h };
+}
+
+let jsPDFmod = null;
+async function makePDF(cli) {
+  jsPDFmod ||= await import("https://cdn.jsdelivr.net/npm/jspdf@2.5.2/+esm");
+  const { jsPDF } = jsPDFmod;
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const PW = 297, PH = 210, M = 14;
+  const ORANGE = [208, 127, 41], INK = [29, 29, 27], GRAY = [128, 128, 128];
+  const fecha = new Date().toLocaleDateString("es-AR");
+
+  const header = (titulo) => {
+    doc.setFont("helvetica", "bold"); doc.setFontSize(18); doc.setTextColor(...INK);
+    doc.text("VISUALSTUDIO", M, 17);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(...GRAY);
+    doc.text("Gráfica Visualtech · " + CFG.sello.web, PW - M, 17, { align: "right" });
+    doc.setDrawColor(...ORANGE); doc.setLineWidth(0.6); doc.line(M, 21, PW - M, 21);
+    doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(...INK);
+    doc.text(titulo, M, 29);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(...GRAY);
+    doc.text(`${codigo} · ${fecha} · ${cli.nombre} · ${cli.mail}`, PW - M, 29, { align: "right" });
+  };
+  const footer = () => {
+    doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); doc.setTextColor(...GRAY);
+    doc.text("Referencia visual generada en VisualStudio. Las medidas finales y el archivo de producción los define Gráfica Visualtech.", M, PH - 8);
+  };
+
+  // ---- Página 1: vistas 3D + ficha ----
+  // pintar todas las caras ya mismo (normalmente se pintan en el próximo cuadro de pantalla)
+  for (const k of Object.keys(PR)) paintTexture(k);
+  header("Referencia visual de exhibidor");
+  const persp = capture3D("persp"), front = capture3D("front"), side = capture3D("side");
+  doc.setDrawColor(230, 227, 222); doc.setLineWidth(0.2);
+  doc.addImage(persp, "JPEG", M, 35, 130, 130); doc.rect(M, 35, 130, 130);
+  doc.addImage(front, "JPEG", M + 134, 35, 63, 63); doc.rect(M + 134, 35, 63, 63);
+  doc.addImage(side, "JPEG", M + 134, 102, 63, 63); doc.rect(M + 134, 102, 63, 63);
+  doc.setFontSize(8); doc.setTextColor(...GRAY);
+  doc.text("Perspectiva", M, 170); doc.text("Frente", M + 134, 101); doc.text("Lateral", M + 134, 168);
+
+  // ficha técnica
+  const fx = M + 205, fw = PW - M - fx;
+  let y = 38;
+  doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(...INK);
+  doc.text("Ficha", fx, y); y += 6;
+  const filas = [...resumen(), ["Piezas diseñadas", String(piezasDisenadas().length)]];
+  doc.setFontSize(8.5);
+  for (const [a, b] of filas) {
+    doc.setDrawColor(230, 227, 222); doc.line(fx, y - 3.6, fx + fw, y - 3.6);
+    doc.setFont("helvetica", "normal"); doc.setTextColor(...GRAY); doc.text(a, fx, y);
+    doc.setTextColor(...INK);
+    const lines = doc.splitTextToSize(b, fw * 0.55);
+    doc.text(lines, fx + fw, y, { align: "right" });
+    y += 6.2 * lines.length;
+  }
+  const av = avisosCalidad();
+  if (av.length) {
+    y += 4;
+    doc.setFont("helvetica", "bold"); doc.setTextColor(...ORANGE); doc.text("Revisar resolución", fx, y); y += 5;
+    doc.setFont("helvetica", "normal"); doc.setFontSize(7.5);
+    for (const a of av) { const l = doc.splitTextToSize(a, fw); doc.text(l, fx, y); y += 4 * l.length; }
+  }
+  footer();
+
+  // ---- Página 2: diseño de cada pieza, todas a la misma escala ----
+  doc.addPage();
+  header("Diseño de las piezas (vistas desde afuera)");
+  const keys = PIECE_ORDER.filter((k) => PR[k]);
+  const lats = keys.filter((k) => k === "latIzq" || k === "latDer");
+  const col = keys.filter((k) => !lats.includes(k));
+  const LBL = 9, GAP = 12, top = 38, avail = PH - top - 20;
+  const latW = lats.reduce((s, k) => s + PR[k].w, 0), colW = Math.max(...col.map((k) => PR[k].w));
+  const colH = col.reduce((s, k) => s + PR[k].h, 0);
+  const s = Math.min(
+    (PW - 2 * M - GAP * lats.length) / (latW + colW),
+    (avail - LBL) / Math.max(...lats.map((k) => PR[k].h)),
+    (avail - LBL * col.length) / colH,
+  );   // mm por cm
+  const label = (k, x, yb) => {
+    doc.setFont("helvetica", "bold"); doc.setFontSize(8.5); doc.setTextColor(...INK);
+    doc.text(PR[k].nombre, x, yb);
+    doc.setFont("helvetica", "normal"); doc.setTextColor(...GRAY);
+    doc.text(`${fmtNum(PR[k].w)} × ${fmtNum(PR[k].h)} cm`, x, yb + 4);
+  };
+  let x = M;
+  for (const k of lats) {
+    const im = pieceImage(k);
+    doc.addImage(im.url, "JPEG", x, top, PR[k].w * s, PR[k].h * s);
+    label(k, x, top + PR[k].h * s + 5);
+    x += PR[k].w * s + GAP;
+  }
+  let yy = top;
+  for (const k of col) {
+    const im = pieceImage(k);
+    doc.addImage(im.url, "JPEG", x, yy, PR[k].w * s, PR[k].h * s);
+    label(k, x, yy + PR[k].h * s + 5);
+    yy += PR[k].h * s + LBL + 5;
+  }
+  doc.setFontSize(7.5); doc.setTextColor(...GRAY);
+  doc.text(`Escala aproximada 1:${Math.round(10 / s)} · Línea roja: corte`, PW - M, PH - 14, { align: "right" });
+  footer();
+
+  doc.save(`VisualStudio-${codigo}.pdf`);
+}
+
+let pdfHecho = false;
+async function descargarPDF() {
+  const cli = cliente();
+  if (!cli) return false;
+  const b = $("#btn-pdf"), lbl = b.querySelector("span");
+  b.classList.add("is-busy"); lbl.textContent = "Generando PDF…";
+  try {
+    await makePDF(cli);
+    pdfHecho = true;
+    b.classList.add("is-done"); lbl.textContent = "PDF descargado ✓";
+    return true;
+  } catch (err) {
+    console.error(err);
+    lbl.textContent = "1. Descargar PDF";
+    alert("No se pudo generar el PDF. Revisá la conexión a internet y probá de nuevo.");
+    return false;
+  } finally {
+    b.classList.remove("is-busy");
+  }
+}
+$("#btn-pdf").addEventListener("click", descargarPDF);
+
+function mensajeWhatsapp(cli) {
+  const r = Object.fromEntries(resumen());
+  const lineas = [
+    `Hola! Soy ${cli.nombre} (${cli.mail}).`,
+    `Armé un exhibidor en VisualStudio y quiero cotizarlo.`,
+    ``,
+    `Código: ${codigo}`,
+    `Formato: ${r.Formato}, ${r.Estantes} estantes`,
+    `Medidas: ${r.Ancho} de ancho × ${r["Profundidad"] || r["Profundidad (base)"]} de profundidad`,
+    state.cabezal
+      ? `Alto: ${r["Alto del cuerpo"]} de cuerpo + ${r.Cenefa} de cenefa (total ${r["Alto total"]})`
+      : `Alto: ${r["Alto del cuerpo"]} (sin cenefa)`,
+  ];
+  if (r["Viga de refuerzo"]) lineas.push(`Viga de refuerzo: ${r["Viga de refuerzo"]}`);
+  lineas.push(`Espesor: ${r.Espesor} · ${r.Material}`, ``, `Te adjunto el PDF con el diseño.`);
+  return lineas.join("\n");
+}
+$("#btn-wa").addEventListener("click", async () => {
+  const cli = cliente();
+  if (!cli) return;
+  // se abre la ventana enseguida (si se abre después de generar el PDF, el navegador la puede bloquear)
+  const w = window.open("", "_blank");
+  if (!pdfHecho) await descargarPDF();
+  const url = `https://wa.me/${CFG.whatsappNumero}?text=${encodeURIComponent(mensajeWhatsapp(cli))}`;
+  if (w) w.location.href = url; else location.href = url;
+});
+// si cambia algo, el PDF anterior ya no vale
+["#c-nombre", "#c-mail"].forEach((s) => $(s).addEventListener("input", () => resetPDF()));
+function resetPDF() {
+  pdfHecho = false;
+  const b = $("#btn-pdf");
+  b.classList.remove("is-done");
+  b.querySelector("span").textContent = "1. Descargar PDF";
+}
+
+/* ---------- Pasos ---------- */
+function goStep(n) {
+  document.body.classList.remove("preview-big");
+  step = n;
+  document.body.dataset.step = n;
+  document.querySelectorAll(".step").forEach((el) => (el.hidden = +el.dataset.step !== n));
+  document.querySelectorAll(".vs-steps [data-goto]").forEach((b) => {
+    b.classList.toggle("is-active", +b.dataset.goto === n);
+    if (+b.dataset.goto === n) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+  });
+  $("#panel").scrollTop = 0;
+  if (renderer) highlight(null);
+  if (n === 2) renderEdPanel(); else $("#ed-props-group").hidden = true;
+  if (n === 3) { resetPDF(); renderSend(); }
+  requestAnimationFrame(() => {
+    if (renderer) { resize(); frame("persp", true); }
+    edLayout(); edDraw();
+  });
+}
+document.querySelectorAll("[data-goto]").forEach((b) => b.addEventListener("click", () => goStep(+b.dataset.goto)));
+
+renderPanel();
+update();
+goStep(1);
+init3D();
+loadDesign();
+document.fonts.ready.then(() => refreshAll());
+</script>
+</body>
+</html>
